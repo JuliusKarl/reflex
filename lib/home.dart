@@ -63,22 +63,26 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          elevation: 0.0,
-          backgroundColor: Color(0xFFf0f0f0),
-          title: Text("Reflex", style: TextStyle(color: Colors.black)),
-          centerTitle: true,
-        ),
-        bottomNavigationBar: Container(
-            color: Color(0xFFf0f0f0),
-            child: TabBar(
-              indicatorColor: Colors.lightBlue,
-              labelColor: Colors.lightBlue,
-              unselectedLabelColor: Colors.grey,
-              controller: _tabController,
-              tabs: myTabs,
-            )),
-        body: Container(child: activeTab));
+    return DefaultTabController(
+        length: 3,
+        child: Scaffold(
+            appBar: AppBar(
+              elevation: 0.0,
+              backgroundColor: Color(0xFFf0f0f0),
+              title: Text("Reflex", style: TextStyle(color: Colors.grey)),
+              centerTitle: true,
+            ),
+            bottomNavigationBar: TabBar(
+              labelColor: Colors.grey,
+              indicatorColor: Colors.grey,
+              tabs: [
+                Tab(text: 'Fixed'),
+                Tab(text: 'Random'),
+                Tab(text: 'Interval')
+              ],
+            ),
+            body: TabBarView(
+              children: [Lap(), Random(), Round()],
+            )));
   }
 }
