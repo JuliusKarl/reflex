@@ -8,6 +8,6 @@ class Round extends StatefulWidget {
 class _RoundState extends State<Round> {
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text("Round"));
+    return Center(child: Text("Interval"));
   }
 }

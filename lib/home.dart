@@ -10,8 +10,10 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   int _activeTabIndex;
+  Widget activeTab;
+
   List<Tab> myTabs = <Tab>[
-    Tab(text: "Lap"),
+    Tab(text: "Fixed"),
     Tab(text: "Random"),
     Tab(text: "Interval"),
   ];
@@ -20,13 +22,36 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   void _setActiveTabIndex() {
     _activeTabIndex = _tabController.index;
     print(_activeTabIndex);
+    switch (_activeTabIndex) {
+      case 0:
+        {
+          setState(() {
+            activeTab = Lap();
+          });
+        }
+        break;
+      case 1:
+        {
+          setState(() {
+            activeTab = Random();
+          });
+        }
+        break;
+      case 2:
+        {
+          setState(() {
+            activeTab = Round();
+          });
+        }
+        break;
+    }
   }
 
   @override
   void initState() {
     _tabController = TabController(vsync: this, length: myTabs.length);
     _tabController.addListener(_setActiveTabIndex);
-
+    activeTab = Lap();
     super.initState();
   }
 
@@ -40,24 +65,20 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("Reflex"),
+          elevation: 0.0,
+          backgroundColor: Color(0xFFf0f0f0),
+          title: Text("Reflex", style: TextStyle(color: Colors.black)),
           centerTitle: true,
         ),
-        bottomNavigationBar: TabBar(
-          indicatorColor: Colors.lightBlue,
-          labelColor: Colors.lightBlue,
-          unselectedLabelColor: Colors.grey,
-          controller: _tabController,
-          tabs: myTabs,
-        ),
-        body: TabBarView(
-          controller: _tabController,
-          children: myTabs.map((Tab tab) {
-            final String label = tab.text.toLowerCase();
-            return Center(
-              child: Text('$label'),
-            );
-          }).toList(),
-        ));
+        bottomNavigationBar: Container(
+            color: Color(0xFFf0f0f0),
+            child: TabBar(
+              indicatorColor: Colors.lightBlue,
+              labelColor: Colors.lightBlue,
+              unselectedLabelColor: Colors.grey,
+              controller: _tabController,
+              tabs: myTabs,
+            )),
+        body: Container(child: activeTab));
   }
 }

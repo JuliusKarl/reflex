@@ -8,6 +8,6 @@ class Lap extends StatefulWidget {
 class _LapState extends State<Lap> {
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text("Lap"));
+    return Center(child: Text("Fixed"));
   }
 }
