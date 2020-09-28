@@ -8,22 +8,21 @@ class Round extends StatefulWidget {
 
 class _RoundState extends State<Round> {
   final _isHours = true;
+  bool isRunning = false;
 
   final StopWatchTimer _stopWatchTimer = StopWatchTimer(
-    isLapHours: true,
-    onChange: (value) => print('onChange $value'),
-    onChangeRawSecond: (value) => print('onChangeRawSecond $value'),
-    onChangeRawMinute: (value) => print('onChangeRawMinute $value'),
-  );
+      isLapHours: true, onChange: (value) => {print('onChange $value')});
 
   @override
   void initState() {
     super.initState();
-    _stopWatchTimer.rawTime.listen((value) =>
-        print('rawTime $value ${StopWatchTimer.getDisplayTime(value)}'));
-    _stopWatchTimer.minuteTime.listen((value) => print('minuteTime $value'));
-    _stopWatchTimer.secondTime.listen((value) => print('secondTime $value'));
-    _stopWatchTimer.records.listen((value) => print('records $value'));
+    _stopWatchTimer.rawTime.listen((value) {
+      if (StopWatchTimer.getRawSecond(value * 10) == 0) {
+        setState(() {
+          isRunning = false;
+        });
+      }
+    });
     super.initState();
   }
 
@@ -37,10 +36,8 @@ class _RoundState extends State<Round> {
   Widget build(BuildContext context) {
     return Center(
       child: ListView(
-        // mainAxisAlignment: MainAxisAlignment.center,
-        // crossAxisAlignment: CrossAxisAlignment.center,
+        shrinkWrap: true,
         children: <Widget>[
-          /// Display stop watch time
           Padding(
             padding: const EdgeInsets.only(bottom: 0),
             child: StreamBuilder<int>(
@@ -60,7 +57,7 @@ class _RoundState extends State<Round> {
                               style: const TextStyle(
                                   fontSize: 60,
                                   fontFamily: 'Digital',
-                                  color: Color(0xFFd41e1e))),
+                                  color: Color(0xFF555555))),
                         ),
                       ],
                     ));
@@ -167,37 +164,71 @@ class _RoundState extends State<Round> {
           //         ),
           //       ),
           Container(
-              margin: EdgeInsets.only(left: 30),
-              child: Align(
-                alignment: Alignment.bottomLeft,
-                child: Text("Total Sets"),
-              )),
-          Container(
               margin: EdgeInsets.fromLTRB(30, 5, 30, 25),
               child: Row(children: [
                 Flexible(
                     child: Container(
+                        width: 140,
                         height: 40,
-                        width: 35,
-                        margin: EdgeInsets.only(right: 10),
                         child: TextField(
                           keyboardType: TextInputType.number,
+                          textAlign: TextAlign.center,
+                          textAlignVertical: TextAlignVertical.center,
                           onChanged: (text) {
                             _stopWatchTimer
                                 .setPresetSecondTime(int.parse(text));
                           },
                           decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: '0',
+                            border: OutlineInputBorder(
+                                borderRadius: const BorderRadius.all(
+                              const Radius.circular(20.0),
+                            )),
+                            labelText: 'Total Sets',
                           ),
                         )))
               ])),
           Container(
-              margin: EdgeInsets.only(left: 30),
-              child: Align(
-                alignment: Alignment.bottomLeft,
-                child: Text("Set Time"),
-              )),
+              margin: EdgeInsets.fromLTRB(30, 5, 30, 25),
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                        child: Container(
+                            height: 40,
+                            width: 140,
+                            child: TextField(
+                              keyboardType: TextInputType.number,
+                              onChanged: (text) {
+                                _stopWatchTimer
+                                    .setPresetMinuteTime(int.parse(text));
+                              },
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                    borderRadius: const BorderRadius.all(
+                                  const Radius.circular(20.0),
+                                )),
+                                labelText: 'Set Minutes',
+                              ),
+                            ))),
+                    Flexible(
+                        child: Container(
+                            height: 40,
+                            width: 140,
+                            child: TextField(
+                              keyboardType: TextInputType.number,
+                              onChanged: (text) {
+                                _stopWatchTimer
+                                    .setPresetSecondTime(int.parse(text));
+                              },
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                    borderRadius: const BorderRadius.all(
+                                  const Radius.circular(20.0),
+                                )),
+                                labelText: 'Set Seconds',
+                              ),
+                            ))),
+                  ])),
           Container(
               margin: EdgeInsets.fromLTRB(30, 5, 30, 25),
               child: Row(
@@ -214,8 +245,11 @@ class _RoundState extends State<Round> {
                                     .setPresetSecondTime(int.parse(text));
                               },
                               decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText: 'Minutes',
+                                border: OutlineInputBorder(
+                                    borderRadius: const BorderRadius.all(
+                                  const Radius.circular(20.0),
+                                )),
+                                labelText: 'Rest Minutes',
                               ),
                             ))),
                     Flexible(
@@ -229,83 +263,37 @@ class _RoundState extends State<Round> {
                                     .setPresetSecondTime(int.parse(text));
                               },
                               decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText: 'Seconds',
+                                border: OutlineInputBorder(
+                                    borderRadius: const BorderRadius.all(
+                                  const Radius.circular(20.0),
+                                )),
+                                labelText: 'Rest Seconds',
                               ),
                             ))),
                   ])),
           Container(
-              margin: EdgeInsets.only(left: 30),
-              child: Align(
-                alignment: Alignment.bottomLeft,
-                child: Text("Rest Time"),
-              )),
-          Container(
-              margin: EdgeInsets.fromLTRB(30, 5, 30, 25),
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Flexible(
-                        child: Container(
-                            height: 40,
-                            width: 140,
-                            child: TextField(
-                              keyboardType: TextInputType.number,
-                              onChanged: (text) {
-                                _stopWatchTimer
-                                    .setPresetSecondTime(int.parse(text));
-                              },
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText: 'Minutes',
-                              ),
-                            ))),
-                    Flexible(
-                        child: Container(
-                            height: 40,
-                            width: 140,
-                            child: TextField(
-                              keyboardType: TextInputType.number,
-                              onChanged: (text) {
-                                _stopWatchTimer
-                                    .setPresetSecondTime(int.parse(text));
-                              },
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText: 'Seconds',
-                              ),
-                            ))),
-                  ])),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30),
-            child: RaisedButton(
-              padding: const EdgeInsets.all(4),
-              color: Colors.lightGreen,
-              shape: const StadiumBorder(),
-              onPressed: () async {
-                _stopWatchTimer.onExecute.add(StopWatchExecute.start);
-              },
-              child: const Text(
-                'Start',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30),
-            child: RaisedButton(
-              padding: const EdgeInsets.all(4),
-              color: Color(0xFFd41e1e),
-              shape: const StadiumBorder(),
-              onPressed: () async {
-                _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
-              },
-              child: const Text(
-                'Stop',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ),
+              height: 40,
+              margin: EdgeInsets.only(top: 10),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 30),
+                child: RaisedButton(
+                  padding: const EdgeInsets.all(4),
+                  color: isRunning ? Color(0xFFd41e1e) : Colors.lightGreen,
+                  shape: const StadiumBorder(),
+                  onPressed: () async {
+                    isRunning
+                        ? _stopWatchTimer.onExecute.add(StopWatchExecute.stop)
+                        : _stopWatchTimer.onExecute.add(StopWatchExecute.start);
+                    setState(() {
+                      isRunning = !isRunning;
+                    });
+                  },
+                  child: Text(
+                    isRunning ? 'Stop' : 'Start',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ))
         ],
       ),
     );

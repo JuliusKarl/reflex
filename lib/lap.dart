@@ -8,22 +8,21 @@ class Lap extends StatefulWidget {
 
 class _LapState extends State<Lap> {
   final _isHours = true;
+  bool isRunning = false;
 
   final StopWatchTimer _stopWatchTimer = StopWatchTimer(
-    isLapHours: true,
-    onChange: (value) => print('onChange $value'),
-    onChangeRawSecond: (value) => print('onChangeRawSecond $value'),
-    onChangeRawMinute: (value) => print('onChangeRawMinute $value'),
-  );
+      isLapHours: true, onChange: (value) => {print('onChange $value')});
 
   @override
   void initState() {
     super.initState();
-    _stopWatchTimer.rawTime.listen((value) =>
-        print('rawTime $value ${StopWatchTimer.getDisplayTime(value)}'));
-    _stopWatchTimer.minuteTime.listen((value) => print('minuteTime $value'));
-    _stopWatchTimer.secondTime.listen((value) => print('secondTime $value'));
-    _stopWatchTimer.records.listen((value) => print('records $value'));
+    _stopWatchTimer.rawTime.listen((value) {
+      if (StopWatchTimer.getRawSecond(value * 10) == 0) {
+        setState(() {
+          isRunning = false;
+        });
+      }
+    });
     super.initState();
   }
 
@@ -37,10 +36,8 @@ class _LapState extends State<Lap> {
   Widget build(BuildContext context) {
     return Center(
       child: ListView(
-        // mainAxisAlignment: MainAxisAlignment.center,
-        // crossAxisAlignment: CrossAxisAlignment.center,
+        shrinkWrap: true,
         children: <Widget>[
-          /// Display stop watch time
           Padding(
             padding: const EdgeInsets.only(bottom: 0),
             child: StreamBuilder<int>(
@@ -60,7 +57,7 @@ class _LapState extends State<Lap> {
                               style: const TextStyle(
                                   fontSize: 60,
                                   fontFamily: 'Digital',
-                                  color: Color(0xFFd41e1e))),
+                                  color: Color(0xFF555555))),
                         ),
                       ],
                     ));
@@ -167,12 +164,6 @@ class _LapState extends State<Lap> {
           //         ),
           //       ),
           Container(
-              margin: EdgeInsets.only(left: 30),
-              child: Align(
-                alignment: Alignment.bottomLeft,
-                child: Text("Set Time"),
-              )),
-          Container(
               margin: EdgeInsets.fromLTRB(30, 5, 30, 25),
               child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -185,11 +176,14 @@ class _LapState extends State<Lap> {
                               keyboardType: TextInputType.number,
                               onChanged: (text) {
                                 _stopWatchTimer
-                                    .setPresetSecondTime(int.parse(text));
+                                    .setPresetMinuteTime(int.parse(text));
                               },
                               decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText: 'Minutes',
+                                border: OutlineInputBorder(
+                                    borderRadius: const BorderRadius.all(
+                                  const Radius.circular(20.0),
+                                )),
+                                labelText: 'Set Minutes',
                               ),
                             ))),
                     Flexible(
@@ -203,17 +197,14 @@ class _LapState extends State<Lap> {
                                     .setPresetSecondTime(int.parse(text));
                               },
                               decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText: 'Seconds',
+                                border: OutlineInputBorder(
+                                    borderRadius: const BorderRadius.all(
+                                  const Radius.circular(20.0),
+                                )),
+                                labelText: 'Set Seconds',
                               ),
                             ))),
                   ])),
-          Container(
-              margin: EdgeInsets.only(left: 30),
-              child: Align(
-                alignment: Alignment.bottomLeft,
-                child: Text("Interval"),
-              )),
           Container(
               margin: EdgeInsets.fromLTRB(30, 5, 30, 10),
               child: Row(
@@ -226,12 +217,16 @@ class _LapState extends State<Lap> {
                             child: TextField(
                               keyboardType: TextInputType.number,
                               onChanged: (text) {
-                                _stopWatchTimer
-                                    .setPresetSecondTime(int.parse(text));
+                                // _stopWatchTimer
+                                //     .setPresetSecondTime(int.parse(text));
                               },
                               decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText: 'Minutes',
+                                border: OutlineInputBorder(
+                                  borderRadius: const BorderRadius.all(
+                                    const Radius.circular(20.0),
+                                  ),
+                                ),
+                                labelText: 'Lap Minutes',
                               ),
                             ))),
                     Flexible(
@@ -241,45 +236,41 @@ class _LapState extends State<Lap> {
                             child: TextField(
                               keyboardType: TextInputType.number,
                               onChanged: (text) {
-                                _stopWatchTimer
-                                    .setPresetSecondTime(int.parse(text));
+                                // _stopWatchTimer
+                                //     .setPresetSecondTime(int.parse(text));
                               },
                               decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText: 'Seconds',
+                                border: OutlineInputBorder(
+                                    borderRadius: const BorderRadius.all(
+                                  const Radius.circular(20.0),
+                                )),
+                                labelText: 'Lap Seconds',
                               ),
                             ))),
                   ])),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30),
-            child: RaisedButton(
-              padding: const EdgeInsets.all(4),
-              color: Colors.lightGreen,
-              shape: const StadiumBorder(),
-              onPressed: () async {
-                _stopWatchTimer.onExecute.add(StopWatchExecute.start);
-              },
-              child: const Text(
-                'Start',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30),
-            child: RaisedButton(
-              padding: const EdgeInsets.all(4),
-              color: Color(0xFFd41e1e),
-              shape: const StadiumBorder(),
-              onPressed: () async {
-                _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
-              },
-              child: const Text(
-                'Stop',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ),
+          Container(
+              height: 40,
+              margin: EdgeInsets.only(top: 10),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 30),
+                child: RaisedButton(
+                  padding: const EdgeInsets.all(4),
+                  color: isRunning ? Color(0xFFd41e1e) : Colors.lightGreen,
+                  shape: const StadiumBorder(),
+                  onPressed: () async {
+                    isRunning
+                        ? _stopWatchTimer.onExecute.add(StopWatchExecute.stop)
+                        : _stopWatchTimer.onExecute.add(StopWatchExecute.start);
+                    setState(() {
+                      isRunning = !isRunning;
+                    });
+                  },
+                  child: Text(
+                    isRunning ? 'Stop' : 'Start',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ))
         ],
       ),
     );
