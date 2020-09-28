@@ -21,7 +21,7 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
-  number_inc_dec: ^0.6.6
+  stop_watch_timer: ^0.6.0+1
   flutter:
     sdk: flutter
 
@@ -43,6 +43,10 @@ flutter:
     - family: Questrial
       fonts:
         - asset: assets/fonts/Questrial-Regular.ttf
+
+    - family: Digital
+      fonts:
+        - asset: assets/fonts/Digital.ttf
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

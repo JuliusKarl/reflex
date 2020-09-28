@@ -9,9 +9,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
-  int _activeTabIndex;
-  Widget activeTab;
-
   List<Tab> myTabs = <Tab>[
     Tab(text: "Fixed"),
     Tab(text: "Random"),
@@ -19,39 +16,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   ];
   TabController _tabController;
 
-  void _setActiveTabIndex() {
-    _activeTabIndex = _tabController.index;
-    print(_activeTabIndex);
-    switch (_activeTabIndex) {
-      case 0:
-        {
-          setState(() {
-            activeTab = Lap();
-          });
-        }
-        break;
-      case 1:
-        {
-          setState(() {
-            activeTab = Random();
-          });
-        }
-        break;
-      case 2:
-        {
-          setState(() {
-            activeTab = Round();
-          });
-        }
-        break;
-    }
-  }
-
   @override
   void initState() {
-    _tabController = TabController(vsync: this, length: myTabs.length);
-    _tabController.addListener(_setActiveTabIndex);
-    activeTab = Lap();
     super.initState();
   }
 
@@ -69,12 +35,12 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             appBar: AppBar(
               elevation: 0.0,
               backgroundColor: Color(0xFFf0f0f0),
-              title: Text("Reflex", style: TextStyle(color: Colors.grey)),
+              title: Text("Reflex", style: TextStyle(color: Color(0xFF555555))),
               centerTitle: true,
             ),
             bottomNavigationBar: TabBar(
-              labelColor: Colors.grey,
-              indicatorColor: Colors.grey,
+              labelColor: Color(0xFF555555),
+              indicatorColor: Color(0xFF555555),
               tabs: [
                 Tab(text: 'Fixed'),
                 Tab(text: 'Random'),
