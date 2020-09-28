@@ -85,16 +85,18 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     Text("Reflex", style: TextStyle(color: Color(0xFF555555))),
                 centerTitle: true,
               ),
-              bottomNavigationBar: TabBar(
-                labelColor: Color(0xFF555555),
-                indicatorColor: Color(0xFF555555),
-                unselectedLabelColor: Colors.grey,
-                tabs: [
-                  Tab(text: 'Lap'),
-                  Tab(text: 'Random'),
-                  Tab(text: 'Sets')
-                ],
-              ),
+              bottomNavigationBar: Container(
+                  color: Color(0xFFf0f0f0),
+                  child: TabBar(
+                    labelColor: Color(0xFF555555),
+                    indicatorColor: Color(0xFF555555),
+                    unselectedLabelColor: Colors.grey[400],
+                    tabs: [
+                      Tab(text: 'Lap'),
+                      Tab(text: 'Random'),
+                      Tab(text: 'Sets')
+                    ],
+                  )),
               body: TabBarView(
                 children: [Lap(), Random(), Round()],
               ));
