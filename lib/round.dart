@@ -8,6 +8,8 @@ class Round extends StatefulWidget {
 
 class _RoundState extends State<Round> {
   final _isHours = true;
+  final secondsController = TextEditingController();
+  final minutesController = TextEditingController();
   bool isRunning = false;
 
   final StopWatchTimer _stopWatchTimer = StopWatchTimer(
@@ -197,10 +199,16 @@ class _RoundState extends State<Round> {
                             height: 40,
                             width: 140,
                             child: TextField(
+                              controller: minutesController,
                               keyboardType: TextInputType.number,
                               onChanged: (text) {
-                                _stopWatchTimer
-                                    .setPresetMinuteTime(int.parse(text));
+                                if (int.parse(text) < 0) {
+                                  minutesController.text = 0.toString();
+                                  _stopWatchTimer.setPresetSecondTime(0);
+                                } else {
+                                  _stopWatchTimer
+                                      .setPresetMinuteTime(int.parse(text));
+                                }
                               },
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(
@@ -215,10 +223,17 @@ class _RoundState extends State<Round> {
                             height: 40,
                             width: 140,
                             child: TextField(
+                              controller: secondsController,
                               keyboardType: TextInputType.number,
                               onChanged: (text) {
-                                _stopWatchTimer
-                                    .setPresetSecondTime(int.parse(text));
+                                if (int.parse(text) > 59 ||
+                                    int.parse(text) < 0) {
+                                  secondsController.text = 0.toString();
+                                  _stopWatchTimer.setPresetSecondTime(0);
+                                } else {
+                                  _stopWatchTimer
+                                      .setPresetSecondTime(int.parse(text));
+                                }
                               },
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(
@@ -272,8 +287,8 @@ class _RoundState extends State<Round> {
                             ))),
                   ])),
           Container(
+              margin: EdgeInsets.only(top: 20),
               height: 40,
-              margin: EdgeInsets.only(top: 10),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 30),
                 child: RaisedButton(
@@ -291,6 +306,24 @@ class _RoundState extends State<Round> {
                   child: Text(
                     isRunning ? 'Stop' : 'Start',
                     style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              )),
+          Container(
+              margin: EdgeInsets.only(top: 20),
+              height: 40,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 30),
+                child: RaisedButton(
+                  padding: const EdgeInsets.all(4),
+                  color: Colors.white,
+                  shape: const StadiumBorder(),
+                  onPressed: () async {
+                    _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
+                  },
+                  child: Text(
+                    'Reset',
+                    style: TextStyle(color: Color(0xFF555555)),
                   ),
                 ),
               ))
