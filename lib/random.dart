@@ -113,6 +113,10 @@ class _RandomState extends State<Random> {
                                   minutesController.text = '';
                                   setMinutes = 0;
                                   _stopWatchTimer.setPresetMinuteTime(0);
+                                  Scaffold.of(context).removeCurrentSnackBar();
+                                  Scaffold.of(context).showSnackBar(SnackBar(
+                                      duration: Duration(seconds: 1),
+                                      content: Text('Value too high')));
                                 } else {
                                   setMinutes = int.parse(text);
                                   _stopWatchTimer
@@ -151,6 +155,10 @@ class _RandomState extends State<Random> {
                                   secondsController.text = '';
                                   setSeconds = 0;
                                   _stopWatchTimer.setPresetSecondTime(0);
+                                  Scaffold.of(context).removeCurrentSnackBar();
+                                  Scaffold.of(context).showSnackBar(SnackBar(
+                                      duration: Duration(seconds: 1),
+                                      content: Text('Value too high')));
                                 } else {
                                   setSeconds = int.parse(text);
                                   _stopWatchTimer
@@ -193,11 +201,21 @@ class _RandomState extends State<Random> {
                                 if (int.parse(text) > 59) {
                                   maxMinutes = 0;
                                   maxMinutesController.text = '';
+                                  Scaffold.of(context).removeCurrentSnackBar();
+                                  Scaffold.of(context).showSnackBar(SnackBar(
+                                      duration: Duration(seconds: 1),
+                                      content: Text('Value too high')));
                                 } else {
                                   if (((int.parse(text) * 60) + maxSeconds) >
                                       ((setMinutes * 60) + setSeconds)) {
                                     maxMinutes = 0;
                                     maxMinutesController.text = '';
+                                    Scaffold.of(context)
+                                        .removeCurrentSnackBar();
+                                    Scaffold.of(context).showSnackBar(SnackBar(
+                                        duration: Duration(seconds: 1),
+                                        content: Text(
+                                            'Maximum interval must be less than workout')));
                                   } else {
                                     maxMinutes = int.parse(text);
                                   }
@@ -230,11 +248,21 @@ class _RandomState extends State<Random> {
                                 if (int.parse(text) > 59) {
                                   maxSeconds = 0;
                                   maxSecondsController.text = '';
+                                  Scaffold.of(context).removeCurrentSnackBar();
+                                  Scaffold.of(context).showSnackBar(SnackBar(
+                                      duration: Duration(seconds: 1),
+                                      content: Text('Value too high')));
                                 } else {
                                   if (((maxMinutes * 60) + int.parse(text)) >
                                       ((setMinutes * 60) + setSeconds)) {
                                     maxSeconds = 0;
                                     maxSecondsController.text = '';
+                                    Scaffold.of(context)
+                                        .removeCurrentSnackBar();
+                                    Scaffold.of(context).showSnackBar(SnackBar(
+                                        duration: Duration(seconds: 1),
+                                        content: Text(
+                                            'Maximum interval must be less than workout')));
                                   } else {
                                     maxSeconds = int.parse(text);
                                   }
@@ -272,11 +300,21 @@ class _RandomState extends State<Random> {
                                 if (int.parse(text) > 59) {
                                   minMinutes = 0;
                                   minMinutesController.text = '';
+                                  Scaffold.of(context).removeCurrentSnackBar();
+                                  Scaffold.of(context).showSnackBar(SnackBar(
+                                      duration: Duration(seconds: 1),
+                                      content: Text('Value too high')));
                                 } else {
                                   if (((int.parse(text) * 60) + minSeconds) >
                                       ((maxMinutes * 60) + maxSeconds)) {
                                     minMinutes = 0;
                                     minMinutesController.text = '';
+                                    Scaffold.of(context)
+                                        .removeCurrentSnackBar();
+                                    Scaffold.of(context).showSnackBar(SnackBar(
+                                        duration: Duration(seconds: 1),
+                                        content: Text(
+                                            'Minimum interval must be less than maximum interval')));
                                   } else {
                                     minMinutes = int.parse(text);
                                   }
@@ -305,11 +343,21 @@ class _RandomState extends State<Random> {
                                 if (int.parse(text) > 59) {
                                   minSeconds = 0;
                                   minSecondsController.text = '';
+                                  Scaffold.of(context).removeCurrentSnackBar();
+                                  Scaffold.of(context).showSnackBar(SnackBar(
+                                      duration: Duration(seconds: 1),
+                                      content: Text('Value too high')));
                                 } else {
                                   if (((minMinutes * 60) + int.parse(text)) >
                                       ((maxMinutes * 60) + maxSeconds)) {
                                     minSeconds = 0;
                                     minSecondsController.text = '';
+                                    Scaffold.of(context)
+                                        .removeCurrentSnackBar();
+                                    Scaffold.of(context).showSnackBar(SnackBar(
+                                        duration: Duration(seconds: 1),
+                                        content: Text(
+                                            'Minimum interval must be less than maximum interval')));
                                   } else {
                                     minSeconds = int.parse(text);
                                   }

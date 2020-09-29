@@ -78,6 +78,9 @@ class _RoundState extends State<Round> {
 
           // Time Options
           Container(
+              margin: EdgeInsets.symmetric(horizontal: 30),
+              child: Text("Sets")),
+          Container(
               margin: EdgeInsets.fromLTRB(30, 5, 30, 25),
               child: Row(children: [
                 Flexible(
@@ -99,7 +102,7 @@ class _RoundState extends State<Round> {
                                 borderRadius: const BorderRadius.all(
                               const Radius.circular(5),
                             )),
-                            labelText: 'Total Sets',
+                            labelText: 'Total',
                           ),
                         )))
               ])),
@@ -123,14 +126,14 @@ class _RoundState extends State<Round> {
                               ],
                               keyboardType: TextInputType.number,
                               onChanged: (text) {
-                                restMinutesController.text = '';
-                                restSecondsController.text = '';
-                                restMinutes = 0;
-                                restSeconds = 0;
                                 if (int.parse(text) > 59) {
                                   minutesController.text = '';
                                   setMinutes = 0;
                                   _stopWatchTimer.setPresetMinuteTime(0);
+                                  Scaffold.of(context).removeCurrentSnackBar();
+                                  Scaffold.of(context).showSnackBar(SnackBar(
+                                      duration: Duration(seconds: 1),
+                                      content: Text('Value too high')));
                                 } else {
                                   setMinutes = int.parse(text);
                                   _stopWatchTimer
@@ -157,14 +160,14 @@ class _RoundState extends State<Round> {
                               ],
                               keyboardType: TextInputType.number,
                               onChanged: (text) {
-                                restMinutesController.text = '';
-                                restSecondsController.text = '';
-                                restMinutes = 0;
-                                restSeconds = 0;
                                 if (int.parse(text) > 59) {
                                   secondsController.text = '';
                                   setSeconds = 0;
                                   _stopWatchTimer.setPresetSecondTime(0);
+                                  Scaffold.of(context).removeCurrentSnackBar();
+                                  Scaffold.of(context).showSnackBar(SnackBar(
+                                      duration: Duration(seconds: 1),
+                                      content: Text('Value too high')));
                                 } else {
                                   setSeconds = int.parse(text);
                                   _stopWatchTimer
@@ -203,14 +206,12 @@ class _RoundState extends State<Round> {
                                 if (int.parse(text) > 59) {
                                   restMinutes = 0;
                                   restMinutesController.text = '';
+                                  Scaffold.of(context).removeCurrentSnackBar();
+                                  Scaffold.of(context).showSnackBar(SnackBar(
+                                      duration: Duration(seconds: 1),
+                                      content: Text('Value too high')));
                                 } else {
-                                  if (((int.parse(text) * 60) + restSeconds) >
-                                      ((setMinutes * 60) + setSeconds)) {
-                                    restMinutes = 0;
-                                    restMinutesController.text = '';
-                                  } else {
-                                    restMinutes = int.parse(text);
-                                  }
+                                  restMinutes = int.parse(text);
                                 }
                               },
                               decoration: InputDecoration(
@@ -236,14 +237,12 @@ class _RoundState extends State<Round> {
                                 if (int.parse(text) > 59) {
                                   restSeconds = 0;
                                   restSecondsController.text = '';
+                                  Scaffold.of(context).removeCurrentSnackBar();
+                                  Scaffold.of(context).showSnackBar(SnackBar(
+                                      duration: Duration(seconds: 1),
+                                      content: Text('Value too high')));
                                 } else {
-                                  if (((restMinutes * 60) + int.parse(text)) >
-                                      ((setMinutes * 60) + setSeconds)) {
-                                    restSeconds = 0;
-                                    restSecondsController.text = '';
-                                  } else {
-                                    restSeconds = int.parse(text);
-                                  }
+                                  restSeconds = int.parse(text);
                                 }
                               },
                               decoration: InputDecoration(

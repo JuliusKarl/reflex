@@ -104,10 +104,15 @@ class _LapState extends State<Lap> {
                                   minutesController.text = '';
                                   setMinutes = 0;
                                   _stopWatchTimer.setPresetMinuteTime(0);
+                                  Scaffold.of(context).removeCurrentSnackBar();
+                                  Scaffold.of(context).showSnackBar(SnackBar(
+                                      duration: Duration(seconds: 1),
+                                      content: Text('Value too high')));
+                                } else {
+                                  setMinutes = int.parse(text);
+                                  _stopWatchTimer
+                                      .setPresetMinuteTime(int.parse(text));
                                 }
-                                setMinutes = int.parse(text);
-                                _stopWatchTimer
-                                    .setPresetMinuteTime(int.parse(text));
                               },
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(
@@ -137,6 +142,10 @@ class _LapState extends State<Lap> {
                                   secondsController.text = '';
                                   setSeconds = 0;
                                   _stopWatchTimer.setPresetSecondTime(0);
+                                  Scaffold.of(context).removeCurrentSnackBar();
+                                  Scaffold.of(context).showSnackBar(SnackBar(
+                                      duration: Duration(seconds: 1),
+                                      content: Text('Value too high')));
                                 } else {
                                   setSeconds = int.parse(text);
                                   _stopWatchTimer
@@ -175,12 +184,22 @@ class _LapState extends State<Lap> {
                                 if (int.parse(text) > 59) {
                                   intervalMinutes = 0;
                                   minutesController2.text = '';
+                                  Scaffold.of(context).removeCurrentSnackBar();
+                                  Scaffold.of(context).showSnackBar(SnackBar(
+                                      duration: Duration(seconds: 1),
+                                      content: Text('Value too high')));
                                 } else {
                                   if (((int.parse(text) * 60) +
                                           intervalSeconds) >
                                       ((setMinutes * 60) + setSeconds)) {
                                     intervalMinutes = 0;
                                     minutesController2.text = '';
+                                    Scaffold.of(context)
+                                        .removeCurrentSnackBar();
+                                    Scaffold.of(context).showSnackBar(SnackBar(
+                                        duration: Duration(seconds: 1),
+                                        content: Text(
+                                            'Interval must be less than workout')));
                                   } else {
                                     intervalMinutes = int.parse(text);
                                   }
@@ -210,12 +229,22 @@ class _LapState extends State<Lap> {
                                 if (int.parse(text) > 59) {
                                   intervalSeconds = 0;
                                   secondsController2.text = '';
+                                  Scaffold.of(context).removeCurrentSnackBar();
+                                  Scaffold.of(context).showSnackBar(SnackBar(
+                                      duration: Duration(seconds: 1),
+                                      content: Text('Value too high')));
                                 } else {
                                   if (((intervalMinutes * 60) +
                                           int.parse(text)) >
                                       ((setMinutes * 60) + setSeconds)) {
                                     intervalSeconds = 0;
                                     secondsController2.text = '';
+                                    Scaffold.of(context)
+                                        .removeCurrentSnackBar();
+                                    Scaffold.of(context).showSnackBar(SnackBar(
+                                        duration: Duration(seconds: 1),
+                                        content: Text(
+                                            'Interval must be less than workout')));
                                   } else {
                                     intervalSeconds = int.parse(text);
                                   }
