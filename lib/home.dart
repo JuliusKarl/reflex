@@ -98,7 +98,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     ],
                   )),
               body: TabBarView(
-                children: [Lap(), Random(), Round()],
+                children: [Lap(), RandomBeep(), Round()],
               ));
         }));
   }

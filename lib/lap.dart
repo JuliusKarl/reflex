@@ -1,6 +1,9 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
+import 'package:audioplayers/audio_cache.dart';
+import 'package:async/async.dart';
+import 'dart:async';
 
 class Lap extends StatefulWidget {
   @override
@@ -13,21 +16,29 @@ class _LapState extends State<Lap> {
   final minutesController2 = TextEditingController();
   final secondsController = TextEditingController();
   final secondsController2 = TextEditingController();
+  final player = AudioCache();
   bool isRunning = false;
   bool reset = false;
   int setMinutes = 0;
   int setSeconds = 0;
   int intervalMinutes = 0;
   int intervalSeconds = 0;
+  int intervalTotal = 0;
+  RestartableTimer timer;
 
   final StopWatchTimer _stopWatchTimer = StopWatchTimer(
       isLapHours: true, onChange: (value) => {print('onChange $value')});
 
   @override
   void initState() {
+    player.disableLog();
     super.initState();
     _stopWatchTimer.rawTime.listen((value) {
       if (StopWatchTimer.getRawSecond(value * 10) == 0) {
+        if (intervalTotal != 0) {
+          player.play('sounds/boxing-bell.mp3');
+          timer.cancel();
+        }
         setState(() {
           isRunning = false;
         });
@@ -38,7 +49,7 @@ class _LapState extends State<Lap> {
 
   void dispose() async {
     super.dispose();
-    // turn off sounds as well
+    timer.cancel();
     await _stopWatchTimer.dispose();
   }
 
@@ -96,6 +107,14 @@ class _LapState extends State<Lap> {
                               ],
                               keyboardType: TextInputType.number,
                               onChanged: (text) {
+                                _stopWatchTimer.onExecute
+                                    .add(StopWatchExecute.stop);
+                                setState(() {
+                                  setMinutes = 0;
+                                  isRunning = false;
+                                  reset = false;
+                                });
+
                                 minutesController2.text = '';
                                 secondsController2.text = '';
                                 intervalMinutes = 0;
@@ -134,6 +153,14 @@ class _LapState extends State<Lap> {
                               ],
                               keyboardType: TextInputType.number,
                               onChanged: (text) {
+                                _stopWatchTimer.onExecute
+                                    .add(StopWatchExecute.stop);
+                                setState(() {
+                                  setSeconds = 0;
+                                  isRunning = false;
+                                  reset = false;
+                                });
+
                                 minutesController2.text = '';
                                 secondsController2.text = '';
                                 intervalMinutes = 0;
@@ -181,6 +208,14 @@ class _LapState extends State<Lap> {
                               ],
                               keyboardType: TextInputType.number,
                               onChanged: (text) {
+                                _stopWatchTimer.onExecute
+                                    .add(StopWatchExecute.stop);
+                                setState(() {
+                                  intervalMinutes = 0;
+                                  isRunning = false;
+                                  reset = false;
+                                });
+
                                 if (int.parse(text) > 59) {
                                   intervalMinutes = 0;
                                   minutesController2.text = '';
@@ -202,6 +237,8 @@ class _LapState extends State<Lap> {
                                             'Interval must be less than workout')));
                                   } else {
                                     intervalMinutes = int.parse(text);
+                                    intervalTotal =
+                                        intervalMinutes + intervalSeconds;
                                   }
                                 }
                               },
@@ -226,6 +263,14 @@ class _LapState extends State<Lap> {
                               ],
                               keyboardType: TextInputType.number,
                               onChanged: (text) {
+                                _stopWatchTimer.onExecute
+                                    .add(StopWatchExecute.stop);
+                                setState(() {
+                                  intervalSeconds = 0;
+                                  isRunning = false;
+                                  reset = false;
+                                });
+
                                 if (int.parse(text) > 59) {
                                   intervalSeconds = 0;
                                   secondsController2.text = '';
@@ -247,6 +292,8 @@ class _LapState extends State<Lap> {
                                             'Interval must be less than workout')));
                                   } else {
                                     intervalSeconds = int.parse(text);
+                                    intervalTotal =
+                                        intervalMinutes + intervalSeconds;
                                   }
                                 }
                               },
@@ -271,13 +318,28 @@ class _LapState extends State<Lap> {
                       borderRadius:
                           const BorderRadius.all(const Radius.circular(5))),
                   onPressed: () async {
-                    reset = true;
-                    isRunning
-                        ? _stopWatchTimer.onExecute.add(StopWatchExecute.stop)
-                        : _stopWatchTimer.onExecute.add(StopWatchExecute.start);
-                    setState(() {
-                      isRunning = !isRunning;
-                    });
+                    if (setMinutes == 0 && setSeconds == 0) {
+                      DoNothingAction();
+                    } else {
+                      if (intervalTotal != 0) {
+                        isRunning
+                            ? timer.cancel()
+                            : timer = new Timer.periodic(
+                                new Duration(
+                                    seconds: intervalSeconds,
+                                    minutes: intervalMinutes), (timer) {
+                                player.play('sounds/censor-beep-1.mp3');
+                              });
+                      }
+                      reset = true;
+                      isRunning
+                          ? _stopWatchTimer.onExecute.add(StopWatchExecute.stop)
+                          : _stopWatchTimer.onExecute
+                              .add(StopWatchExecute.start);
+                      setState(() {
+                        isRunning = !isRunning;
+                      });
+                    }
                   },
                   child: Text(
                     isRunning ? 'Stop' : 'Start',

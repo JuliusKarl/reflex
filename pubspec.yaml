@@ -40,6 +40,10 @@ dev_dependencies:
 
 # The following section is specific to Flutter.
 flutter:
+  assets:
+   - assets/sounds/censor-beep-1.mp3
+   - assets/sounds/boxing-bell.mp3
+
   fonts:
     - family: Questrial
       fonts:

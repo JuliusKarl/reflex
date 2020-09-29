@@ -1,13 +1,16 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
+import 'package:audioplayers/audio_cache.dart';
+import 'dart:async';
+import 'dart:math';
 
-class Random extends StatefulWidget {
+class RandomBeep extends StatefulWidget {
   @override
-  _RandomState createState() => _RandomState();
+  _RandomBeepState createState() => _RandomBeepState();
 }
 
-class _RandomState extends State<Random> {
+class _RandomBeepState extends State<RandomBeep> {
   final _isHours = false;
   final minutesController = TextEditingController();
   final minMinutesController = TextEditingController();
@@ -15,6 +18,8 @@ class _RandomState extends State<Random> {
   final secondsController = TextEditingController();
   final minSecondsController = TextEditingController();
   final maxSecondsController = TextEditingController();
+  final _random = new Random();
+  final player = AudioCache();
   bool isRunning = false;
   bool reset = false;
   int setMinutes = 0;
@@ -23,16 +28,25 @@ class _RandomState extends State<Random> {
   int maxSeconds = 0;
   int minMinutes = 0;
   int minSeconds = 0;
-  int interval = 0;
+  int maxIntervalTotal = 0;
+  int minIntervalTotal = 0;
+  Timer timer;
 
   final StopWatchTimer _stopWatchTimer = StopWatchTimer(
       isLapHours: true, onChange: (value) => {print('onChange $value')});
 
   @override
   void initState() {
+    player.disableLog();
     super.initState();
     _stopWatchTimer.rawTime.listen((value) {
+      print(minIntervalTotal +
+          _random.nextInt(maxIntervalTotal - minIntervalTotal));
       if (StopWatchTimer.getRawSecond(value * 10) == 0) {
+        if (maxIntervalTotal != 0) {
+          player.play('sounds/boxing-bell.mp3');
+          timer.cancel();
+        }
         setState(() {
           isRunning = false;
         });
@@ -43,7 +57,7 @@ class _RandomState extends State<Random> {
 
   void dispose() async {
     super.dispose();
-    // turn off sounds as well
+    timer.cancel();
     await _stopWatchTimer.dispose();
   }
 
@@ -217,7 +231,8 @@ class _RandomState extends State<Random> {
                                         content: Text(
                                             'Maximum interval must be less than workout')));
                                   } else {
-                                    maxMinutes = int.parse(text);
+                                    maxMinutes = int.parse(text) * 60;
+                                    maxIntervalTotal = maxMinutes + maxSeconds;
                                   }
                                 }
                               },
@@ -265,6 +280,7 @@ class _RandomState extends State<Random> {
                                             'Maximum interval must be less than workout')));
                                   } else {
                                     maxSeconds = int.parse(text);
+                                    maxIntervalTotal = maxMinutes + maxSeconds;
                                   }
                                 }
                               },
@@ -316,7 +332,8 @@ class _RandomState extends State<Random> {
                                         content: Text(
                                             'Minimum interval must be less than maximum interval')));
                                   } else {
-                                    minMinutes = int.parse(text);
+                                    minMinutes = int.parse(text) * 60;
+                                    minIntervalTotal = minMinutes + minSeconds;
                                   }
                                 }
                               },
@@ -360,6 +377,7 @@ class _RandomState extends State<Random> {
                                             'Minimum interval must be less than maximum interval')));
                                   } else {
                                     minSeconds = int.parse(text);
+                                    minIntervalTotal = minMinutes + minSeconds;
                                   }
                                 }
                               },
@@ -384,13 +402,29 @@ class _RandomState extends State<Random> {
                       borderRadius:
                           const BorderRadius.all(const Radius.circular(5))),
                   onPressed: () async {
-                    reset = true;
-                    isRunning
-                        ? _stopWatchTimer.onExecute.add(StopWatchExecute.stop)
-                        : _stopWatchTimer.onExecute.add(StopWatchExecute.start);
-                    setState(() {
-                      isRunning = !isRunning;
-                    });
+                    if (setMinutes == 0 && setSeconds == 0) {
+                      DoNothingAction();
+                    } else {
+                      if (maxIntervalTotal != 0) {
+                        isRunning
+                            ? timer.cancel()
+                            : timer = new Timer.periodic(
+                                new Duration(
+                                    seconds: minIntervalTotal +
+                                        _random.nextInt(maxIntervalTotal -
+                                            minIntervalTotal)), (timer) {
+                                player.play('sounds/censor-beep-1.mp3');
+                              });
+                      }
+                      reset = true;
+                      isRunning
+                          ? _stopWatchTimer.onExecute.add(StopWatchExecute.stop)
+                          : _stopWatchTimer.onExecute
+                              .add(StopWatchExecute.start);
+                      setState(() {
+                        isRunning = !isRunning;
+                      });
+                    }
                   },
                   child: Text(
                     isRunning ? 'Stop' : 'Start',

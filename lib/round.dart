@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
+import 'package:audioplayers/audio_cache.dart';
 
 class Round extends StatefulWidget {
   @override
@@ -14,6 +15,7 @@ class _RoundState extends State<Round> {
   final restMinutesController = TextEditingController();
   final restSecondsController = TextEditingController();
   final setsController = TextEditingController();
+  final player = AudioCache();
   bool isRunning = false;
   bool reset = false;
   int setMinutes = 0;
@@ -266,6 +268,19 @@ class _RoundState extends State<Round> {
                       borderRadius:
                           const BorderRadius.all(const Radius.circular(5))),
                   onPressed: () async {
+                    if (setMinutes == 0 && setSeconds == 0) {
+                      DoNothingAction();
+                    } else {
+                      // if (intervalTotal != 0) {
+                      //   isRunning
+                      //       ? timer.cancel()
+                      //       : timer = new Timer.periodic(
+                      //           new Duration(
+                      //               seconds: intervalSeconds,
+                      //               minutes: intervalMinutes), (timer) {
+                      //           player.play('sounds/censor-beep-1.mp3');
+                      //         });
+                    }
                     reset = true;
                     isRunning
                         ? _stopWatchTimer.onExecute.add(StopWatchExecute.stop)
@@ -273,6 +288,7 @@ class _RoundState extends State<Round> {
                     setState(() {
                       isRunning = !isRunning;
                     });
+                    // }
                   },
                   child: Text(
                     isRunning ? 'Stop' : 'Start',
