@@ -123,6 +123,13 @@ class _RandomBeepState extends State<RandomBeep> {
                                 maxSeconds = 0;
                                 minMinutes = 0;
                                 minSeconds = 0;
+                                _stopWatchTimer.onExecute
+                                    .add(StopWatchExecute.stop);
+                                setState(() {
+                                  setMinutes = 0;
+                                  isRunning = false;
+                                  reset = false;
+                                });
                                 if (int.parse(text) > 59) {
                                   minutesController.text = '';
                                   setMinutes = 0;
@@ -165,6 +172,13 @@ class _RandomBeepState extends State<RandomBeep> {
                                 maxSeconds = 0;
                                 minMinutes = 0;
                                 minSeconds = 0;
+                                _stopWatchTimer.onExecute
+                                    .add(StopWatchExecute.stop);
+                                setState(() {
+                                  setSeconds = 0;
+                                  isRunning = false;
+                                  reset = false;
+                                });
                                 if (int.parse(text) > 59) {
                                   secondsController.text = '';
                                   setSeconds = 0;
@@ -212,6 +226,13 @@ class _RandomBeepState extends State<RandomBeep> {
                                 minSecondsController.text = '';
                                 minMinutes = 0;
                                 minSeconds = 0;
+                                _stopWatchTimer.onExecute
+                                    .add(StopWatchExecute.stop);
+                                setState(() {
+                                  maxMinutes = 0;
+                                  isRunning = false;
+                                  reset = false;
+                                });
                                 if (int.parse(text) > 59) {
                                   maxMinutes = 0;
                                   maxMinutesController.text = '';
@@ -260,6 +281,13 @@ class _RandomBeepState extends State<RandomBeep> {
                                 minSecondsController.text = '';
                                 minMinutes = 0;
                                 minSeconds = 0;
+                                _stopWatchTimer.onExecute
+                                    .add(StopWatchExecute.stop);
+                                setState(() {
+                                  maxSeconds = 0;
+                                  isRunning = false;
+                                  reset = false;
+                                });
                                 if (int.parse(text) > 59) {
                                   maxSeconds = 0;
                                   maxSecondsController.text = '';
@@ -313,6 +341,13 @@ class _RandomBeepState extends State<RandomBeep> {
                               ],
                               keyboardType: TextInputType.number,
                               onChanged: (text) {
+                                _stopWatchTimer.onExecute
+                                    .add(StopWatchExecute.stop);
+                                setState(() {
+                                  minMinutes = 0;
+                                  isRunning = false;
+                                  reset = false;
+                                });
                                 if (int.parse(text) > 59) {
                                   minMinutes = 0;
                                   minMinutesController.text = '';
@@ -357,6 +392,13 @@ class _RandomBeepState extends State<RandomBeep> {
                               ],
                               keyboardType: TextInputType.number,
                               onChanged: (text) {
+                                _stopWatchTimer.onExecute
+                                    .add(StopWatchExecute.stop);
+                                setState(() {
+                                  minSeconds = 0;
+                                  isRunning = false;
+                                  reset = false;
+                                });
                                 if (int.parse(text) > 59) {
                                   minSeconds = 0;
                                   minSecondsController.text = '';

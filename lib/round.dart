@@ -128,6 +128,13 @@ class _RoundState extends State<Round> {
                               ],
                               keyboardType: TextInputType.number,
                               onChanged: (text) {
+                                _stopWatchTimer.onExecute
+                                    .add(StopWatchExecute.stop);
+                                setState(() {
+                                  setMinutes = 0;
+                                  isRunning = false;
+                                  reset = false;
+                                });
                                 if (int.parse(text) > 59) {
                                   minutesController.text = '';
                                   setMinutes = 0;
@@ -162,6 +169,13 @@ class _RoundState extends State<Round> {
                               ],
                               keyboardType: TextInputType.number,
                               onChanged: (text) {
+                                _stopWatchTimer.onExecute
+                                    .add(StopWatchExecute.stop);
+                                setState(() {
+                                  setSeconds = 0;
+                                  isRunning = false;
+                                  reset = false;
+                                });
                                 if (int.parse(text) > 59) {
                                   secondsController.text = '';
                                   setSeconds = 0;
@@ -205,6 +219,13 @@ class _RoundState extends State<Round> {
                               ],
                               keyboardType: TextInputType.number,
                               onChanged: (text) {
+                                _stopWatchTimer.onExecute
+                                    .add(StopWatchExecute.stop);
+                                setState(() {
+                                  restMinutes = 0;
+                                  isRunning = false;
+                                  reset = false;
+                                });
                                 if (int.parse(text) > 59) {
                                   restMinutes = 0;
                                   restMinutesController.text = '';
@@ -236,6 +257,13 @@ class _RoundState extends State<Round> {
                               ],
                               keyboardType: TextInputType.number,
                               onChanged: (text) {
+                                _stopWatchTimer.onExecute
+                                    .add(StopWatchExecute.stop);
+                                setState(() {
+                                  restSeconds = 0;
+                                  isRunning = false;
+                                  reset = false;
+                                });
                                 if (int.parse(text) > 59) {
                                   restSeconds = 0;
                                   restSecondsController.text = '';
@@ -271,24 +299,25 @@ class _RoundState extends State<Round> {
                     if (setMinutes == 0 && setSeconds == 0) {
                       DoNothingAction();
                     } else {
-                      // if (intervalTotal != 0) {
-                      //   isRunning
-                      //       ? timer.cancel()
-                      //       : timer = new Timer.periodic(
-                      //           new Duration(
-                      //               seconds: intervalSeconds,
-                      //               minutes: intervalMinutes), (timer) {
-                      //           player.play('sounds/censor-beep-1.mp3');
-                      //         });
+                      //   if (intervalTotal != 0) {
+                      //     isRunning
+                      //         ? timer.cancel()
+                      //         : timer = new Timer.periodic(
+                      //             new Duration(
+                      //                 seconds: intervalSeconds,
+                      //                 minutes: intervalMinutes), (timer) {
+                      //             player.play('sounds/censor-beep-1.mp3');
+                      //           });
+                      // }
+                      reset = true;
+                      isRunning
+                          ? _stopWatchTimer.onExecute.add(StopWatchExecute.stop)
+                          : _stopWatchTimer.onExecute
+                              .add(StopWatchExecute.start);
+                      setState(() {
+                        isRunning = !isRunning;
+                      });
                     }
-                    reset = true;
-                    isRunning
-                        ? _stopWatchTimer.onExecute.add(StopWatchExecute.stop)
-                        : _stopWatchTimer.onExecute.add(StopWatchExecute.start);
-                    setState(() {
-                      isRunning = !isRunning;
-                    });
-                    // }
                   },
                   child: Text(
                     isRunning ? 'Stop' : 'Start',

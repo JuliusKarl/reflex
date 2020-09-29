@@ -321,21 +321,21 @@ class _LapState extends State<Lap> {
                     if (setMinutes == 0 && setSeconds == 0) {
                       DoNothingAction();
                     } else {
-                      if (intervalTotal != 0) {
-                        isRunning
-                            ? timer.cancel()
-                            : timer = new Timer.periodic(
-                                new Duration(
-                                    seconds: intervalSeconds,
-                                    minutes: intervalMinutes), (timer) {
-                                player.play('sounds/censor-beep-1.mp3');
-                              });
-                      }
                       reset = true;
                       isRunning
                           ? _stopWatchTimer.onExecute.add(StopWatchExecute.stop)
                           : _stopWatchTimer.onExecute
                               .add(StopWatchExecute.start);
+                      if (intervalTotal != 0) {
+                        // isRunning
+                        //     ? timer.cancel()
+                        //     : timer = new Timer.periodic(
+                        //         new Duration(
+                        //             seconds: intervalSeconds,
+                        //             minutes: intervalMinutes), (timer) {
+                        //         player.play('sounds/censor-beep-1.mp3');
+                        //       });
+                      }
                       setState(() {
                         isRunning = !isRunning;
                       });
