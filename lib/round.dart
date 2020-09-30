@@ -2,38 +2,88 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:audioplayers/audio_cache.dart';
+import 'dart:async';
 
-class Round extends StatefulWidget {
+class Sets extends StatefulWidget {
   @override
-  _RoundState createState() => _RoundState();
+  _SetsState createState() => _SetsState();
 }
 
-class _RoundState extends State<Round> {
+class _SetsState extends State<Sets> {
   final _isHours = false;
   final minutesController = TextEditingController();
+  final minutesController2 = TextEditingController();
   final secondsController = TextEditingController();
-  final restMinutesController = TextEditingController();
-  final restSecondsController = TextEditingController();
+  final secondsController2 = TextEditingController();
   final setsController = TextEditingController();
   final player = AudioCache();
+  bool workout = false;
+  bool rest = false;
   bool isRunning = false;
   bool reset = false;
+  bool enabledText = true;
   int setMinutes = 0;
   int setSeconds = 0;
-  int restMinutes = 0;
-  int restSeconds = 0;
+  int intervalMinutes = 0;
+  int intervalSeconds = 0;
+  int intervalTotal = 0;
+  int totalSets = 0;
+  int setTracker = 0;
+  Timer activeTimer;
 
   final StopWatchTimer _stopWatchTimer = StopWatchTimer(
-      isLapHours: true, onChange: (value) => {print('onChange $value')});
+    isLapHours: true,
+    // onChange: (value) => {
+    //       // print('onChange $value')
+    //     }
+  );
 
   @override
   void initState() {
+    player.disableLog();
     super.initState();
     _stopWatchTimer.rawTime.listen((value) {
       if (StopWatchTimer.getRawSecond(value * 10) == 0) {
-        setState(() {
-          isRunning = false;
-        });
+        if (setTracker > 0) {
+          if (workout) {
+            player.play('sounds/censor-beep-1.mp3');
+            setState(() {
+              workout = false;
+              rest = true;
+            });
+            _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
+            if (intervalMinutes + intervalSeconds == 0) {
+              setState(() {
+                rest = false;
+                workout = true;
+              });
+              _stopWatchTimer.setPresetMinuteTime(intervalMinutes);
+              _stopWatchTimer.setPresetSecondTime(intervalSeconds);
+            }
+            _stopWatchTimer.onExecute.add(StopWatchExecute.start);
+          } else if (rest) {
+            player.play('sounds/censor-beep-1.mp3');
+            setState(() {
+              rest = false;
+              workout = true;
+              setTracker -= 1;
+              setsController.text = setTracker.toString();
+            });
+            _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
+            _stopWatchTimer.setPresetMinuteTime(setMinutes);
+            _stopWatchTimer.setPresetSecondTime(setSeconds);
+            _stopWatchTimer.onExecute.add(StopWatchExecute.start);
+          }
+        } else {
+          if (isRunning) {
+            player.play('sounds/boxing-bell.mp3');
+            setState(() {
+              setsController.text = totalSets.toString();
+              isRunning = false;
+              enabledText = true;
+            });
+          }
+        }
       }
     });
     super.initState();
@@ -41,7 +91,6 @@ class _RoundState extends State<Round> {
 
   void dispose() async {
     super.dispose();
-    // turn off sounds as well
     await _stopWatchTimer.dispose();
   }
 
@@ -78,41 +127,52 @@ class _RoundState extends State<Round> {
             ),
           ),
 
-          // Time Options
+          //  Time Options
           Container(
               margin: EdgeInsets.symmetric(horizontal: 30),
               child: Text("Sets")),
           Container(
               margin: EdgeInsets.fromLTRB(30, 5, 30, 25),
-              child: Row(children: [
-                Flexible(
-                    child: Container(
-                        width: 140,
-                        height: 40,
-                        child: TextField(
-                          controller: setsController,
-                          enableInteractiveSelection: false,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly
-                          ],
-                          keyboardType: TextInputType.number,
-                          onChanged: (text) {
-                            // Logic here
-                          },
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                                borderRadius: const BorderRadius.all(
-                              const Radius.circular(5),
-                            )),
-                            labelText: 'Total',
-                          ),
-                        )))
-              ])),
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                        child: Container(
+                            width: 140,
+                            height: 40,
+                            child: TextField(
+                              enabled: enabledText ? true : false,
+                              controller: setsController,
+                              enableInteractiveSelection: false,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly
+                              ],
+                              keyboardType: TextInputType.number,
+                              onChanged: (text) {
+                                setState(() {
+                                  totalSets = 0;
+                                  totalSets = int.parse(text);
+                                  setTracker = totalSets;
+                                });
+                              },
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                    borderRadius: const BorderRadius.all(
+                                  const Radius.circular(5),
+                                )),
+                                labelText: 'Total',
+                              ),
+                            ))),
+                    Container(
+                        child: Text(
+                            isRunning ? workout ? 'Workout' : 'Rest' : '',
+                            style: TextStyle(fontSize: 40)))
+                  ])),
           Container(
               margin: EdgeInsets.symmetric(horizontal: 30),
               child: Text("Workout")),
           Container(
-              margin: EdgeInsets.fromLTRB(30, 5, 30, 10),
+              margin: EdgeInsets.fromLTRB(30, 5, 30, 25),
               child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -121,13 +181,18 @@ class _RoundState extends State<Round> {
                             height: 40,
                             width: 140,
                             child: TextField(
-                              controller: minutesController,
+                              maxLength: 2,
+                              enabled: enabledText ? true : false,
                               enableInteractiveSelection: false,
+                              controller: minutesController,
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly
                               ],
                               keyboardType: TextInputType.number,
                               onChanged: (text) {
+                                if (activeTimer != null) {
+                                  activeTimer.cancel();
+                                }
                                 _stopWatchTimer.onExecute
                                     .add(StopWatchExecute.stop);
                                 setState(() {
@@ -145,11 +210,13 @@ class _RoundState extends State<Round> {
                                       content: Text('Value too high')));
                                 } else {
                                   setMinutes = int.parse(text);
+                                  intervalTotal = setMinutes + setSeconds;
                                   _stopWatchTimer
                                       .setPresetMinuteTime(int.parse(text));
                                 }
                               },
                               decoration: InputDecoration(
+                                counterText: '',
                                 border: OutlineInputBorder(
                                     borderRadius: const BorderRadius.all(
                                   const Radius.circular(5),
@@ -162,13 +229,18 @@ class _RoundState extends State<Round> {
                             height: 40,
                             width: 140,
                             child: TextField(
-                              controller: secondsController,
+                              maxLength: 2,
+                              enabled: enabledText ? true : false,
                               enableInteractiveSelection: false,
+                              controller: secondsController,
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly
                               ],
                               keyboardType: TextInputType.number,
                               onChanged: (text) {
+                                if (activeTimer != null) {
+                                  activeTimer.cancel();
+                                }
                                 _stopWatchTimer.onExecute
                                     .add(StopWatchExecute.stop);
                                 setState(() {
@@ -186,11 +258,13 @@ class _RoundState extends State<Round> {
                                       content: Text('Value too high')));
                                 } else {
                                   setSeconds = int.parse(text);
+                                  intervalTotal = setMinutes + setSeconds;
                                   _stopWatchTimer
                                       .setPresetSecondTime(int.parse(text));
                                 }
                               },
                               decoration: InputDecoration(
+                                counterText: '',
                                 border: OutlineInputBorder(
                                     borderRadius: const BorderRadius.all(
                                   const Radius.circular(5),
@@ -212,36 +286,44 @@ class _RoundState extends State<Round> {
                             height: 40,
                             width: 140,
                             child: TextField(
-                              controller: restMinutesController,
+                              maxLength: 2,
+                              enabled: enabledText ? true : false,
+                              controller: minutesController2,
                               enableInteractiveSelection: false,
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly
                               ],
                               keyboardType: TextInputType.number,
                               onChanged: (text) {
+                                if (activeTimer != null) {
+                                  activeTimer.cancel();
+                                }
                                 _stopWatchTimer.onExecute
                                     .add(StopWatchExecute.stop);
                                 setState(() {
-                                  restMinutes = 0;
+                                  intervalMinutes = 0;
                                   isRunning = false;
                                   reset = false;
                                 });
+
                                 if (int.parse(text) > 59) {
-                                  restMinutes = 0;
-                                  restMinutesController.text = '';
+                                  intervalMinutes = 0;
+                                  minutesController2.text = '';
                                   Scaffold.of(context).removeCurrentSnackBar();
                                   Scaffold.of(context).showSnackBar(SnackBar(
                                       duration: Duration(seconds: 1),
                                       content: Text('Value too high')));
                                 } else {
-                                  restMinutes = int.parse(text);
+                                  intervalMinutes = int.parse(text);
                                 }
                               },
                               decoration: InputDecoration(
+                                counterText: '',
                                 border: OutlineInputBorder(
-                                    borderRadius: const BorderRadius.all(
-                                  const Radius.circular(5),
-                                )),
+                                  borderRadius: const BorderRadius.all(
+                                    const Radius.circular(5),
+                                  ),
+                                ),
                                 labelText: 'Min',
                               ),
                             ))),
@@ -250,32 +332,39 @@ class _RoundState extends State<Round> {
                             height: 40,
                             width: 140,
                             child: TextField(
-                              controller: restSecondsController,
+                              maxLength: 2,
+                              enabled: enabledText ? true : false,
+                              controller: secondsController2,
                               enableInteractiveSelection: false,
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly
                               ],
                               keyboardType: TextInputType.number,
                               onChanged: (text) {
+                                if (activeTimer != null) {
+                                  activeTimer.cancel();
+                                }
                                 _stopWatchTimer.onExecute
                                     .add(StopWatchExecute.stop);
                                 setState(() {
-                                  restSeconds = 0;
+                                  intervalSeconds = 0;
                                   isRunning = false;
                                   reset = false;
                                 });
+
                                 if (int.parse(text) > 59) {
-                                  restSeconds = 0;
-                                  restSecondsController.text = '';
+                                  intervalSeconds = 0;
+                                  secondsController2.text = '';
                                   Scaffold.of(context).removeCurrentSnackBar();
                                   Scaffold.of(context).showSnackBar(SnackBar(
                                       duration: Duration(seconds: 1),
                                       content: Text('Value too high')));
                                 } else {
-                                  restSeconds = int.parse(text);
+                                  intervalSeconds = int.parse(text);
                                 }
                               },
                               decoration: InputDecoration(
+                                counterText: '',
                                 border: OutlineInputBorder(
                                     borderRadius: const BorderRadius.all(
                                   const Radius.circular(5),
@@ -296,26 +385,24 @@ class _RoundState extends State<Round> {
                       borderRadius:
                           const BorderRadius.all(const Radius.circular(5))),
                   onPressed: () async {
-                    if (setMinutes == 0 && setSeconds == 0) {
+                    if (setMinutes + setSeconds == 0 || totalSets == 0) {
+                      Scaffold.of(context).removeCurrentSnackBar();
+                      Scaffold.of(context).showSnackBar(SnackBar(
+                          duration: Duration(seconds: 1),
+                          content: Text('Missing values')));
                       DoNothingAction();
                     } else {
-                      //   if (intervalTotal != 0) {
-                      //     isRunning
-                      //         ? timer.cancel()
-                      //         : timer = new Timer.periodic(
-                      //             new Duration(
-                      //                 seconds: intervalSeconds,
-                      //                 minutes: intervalMinutes), (timer) {
-                      //             player.play('sounds/censor-beep-1.mp3');
-                      //           });
-                      // }
+                      workout = true;
                       reset = true;
                       isRunning
-                          ? _stopWatchTimer.onExecute.add(StopWatchExecute.stop)
+                          ? _stopWatchTimer.onExecute
+                              .add(StopWatchExecute.reset)
                           : _stopWatchTimer.onExecute
                               .add(StopWatchExecute.start);
                       setState(() {
+                        workout = true;
                         isRunning = !isRunning;
+                        enabledText = !enabledText;
                       });
                     }
                   },
@@ -341,9 +428,15 @@ class _RoundState extends State<Round> {
                         onPressed: () async {
                           _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
                           setState(() {
+                            setsController.text = totalSets.toString();
+                            setTracker = totalSets;
                             isRunning = false;
                             reset = false;
+                            enabledText = true;
                           });
+                          if (activeTimer != null) {
+                            activeTimer.cancel();
+                          }
                         },
                         child: Text(
                           'Reset',

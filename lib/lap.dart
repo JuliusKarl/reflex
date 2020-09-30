@@ -41,6 +41,7 @@ class _LapState extends State<Lap> {
       if (StopWatchTimer.getRawSecond(value * 10) == 0) {
         if (intervalTotal != 0) {
           player.play('sounds/boxing-bell.mp3');
+          enabledText = true;
           activeTimer.cancel();
         }
         setState(() {
@@ -104,6 +105,7 @@ class _LapState extends State<Lap> {
                             height: 40,
                             width: 140,
                             child: TextField(
+                              maxLength: 2,
                               enabled: enabledText ? true : false,
                               enableInteractiveSelection: false,
                               controller: minutesController,
@@ -142,6 +144,7 @@ class _LapState extends State<Lap> {
                                 }
                               },
                               decoration: InputDecoration(
+                                counterText: '',
                                 border: OutlineInputBorder(
                                     borderRadius: const BorderRadius.all(
                                   const Radius.circular(5),
@@ -154,6 +157,7 @@ class _LapState extends State<Lap> {
                             height: 40,
                             width: 140,
                             child: TextField(
+                              maxLength: 2,
                               enabled: enabledText ? true : false,
                               enableInteractiveSelection: false,
                               controller: secondsController,
@@ -192,6 +196,7 @@ class _LapState extends State<Lap> {
                                 }
                               },
                               decoration: InputDecoration(
+                                counterText: '',
                                 border: OutlineInputBorder(
                                     borderRadius: const BorderRadius.all(
                                   const Radius.circular(5),
@@ -213,6 +218,7 @@ class _LapState extends State<Lap> {
                             height: 40,
                             width: 140,
                             child: TextField(
+                              maxLength: 2,
                               enabled: enabledText ? true : false,
                               controller: minutesController2,
                               enableInteractiveSelection: false,
@@ -259,6 +265,7 @@ class _LapState extends State<Lap> {
                                 }
                               },
                               decoration: InputDecoration(
+                                counterText: '',
                                 border: OutlineInputBorder(
                                   borderRadius: const BorderRadius.all(
                                     const Radius.circular(5),
@@ -272,6 +279,7 @@ class _LapState extends State<Lap> {
                             height: 40,
                             width: 140,
                             child: TextField(
+                              maxLength: 2,
                               enabled: enabledText ? true : false,
                               controller: secondsController2,
                               enableInteractiveSelection: false,
@@ -318,6 +326,7 @@ class _LapState extends State<Lap> {
                                 }
                               },
                               decoration: InputDecoration(
+                                counterText: '',
                                 border: OutlineInputBorder(
                                     borderRadius: const BorderRadius.all(
                                   const Radius.circular(5),

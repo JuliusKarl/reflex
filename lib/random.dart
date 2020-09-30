@@ -50,6 +50,7 @@ class _RandomBeepState extends State<RandomBeep> {
       if (StopWatchTimer.getRawSecond(value * 10) == 0) {
         if (maxIntervalTotal != 0) {
           player.play('sounds/boxing-bell.mp3');
+          enabledText = true;
           activeTimer.cancel();
         }
         setState(() {
@@ -128,6 +129,7 @@ class _RandomBeepState extends State<RandomBeep> {
                             height: 40,
                             width: 140,
                             child: TextField(
+                              maxLength: 2,
                               enabled: enabledText ? true : false,
                               enableInteractiveSelection: false,
                               controller: minutesController,
@@ -165,6 +167,7 @@ class _RandomBeepState extends State<RandomBeep> {
                                 }
                               },
                               decoration: InputDecoration(
+                                counterText: '',
                                 border: OutlineInputBorder(
                                     borderRadius: const BorderRadius.all(
                                   const Radius.circular(5),
@@ -177,6 +180,7 @@ class _RandomBeepState extends State<RandomBeep> {
                             height: 40,
                             width: 140,
                             child: TextField(
+                              maxLength: 2,
                               enabled: enabledText ? true : false,
                               enableInteractiveSelection: false,
                               controller: secondsController,
@@ -214,6 +218,7 @@ class _RandomBeepState extends State<RandomBeep> {
                                 }
                               },
                               decoration: InputDecoration(
+                                counterText: '',
                                 border: OutlineInputBorder(
                                     borderRadius: const BorderRadius.all(
                                   const Radius.circular(5),
@@ -235,6 +240,7 @@ class _RandomBeepState extends State<RandomBeep> {
                             height: 40,
                             width: 140,
                             child: TextField(
+                              maxLength: 2,
                               enabled: enabledText ? true : false,
                               controller: maxMinutesController,
                               enableInteractiveSelection: false,
@@ -285,6 +291,7 @@ class _RandomBeepState extends State<RandomBeep> {
                                 }
                               },
                               decoration: InputDecoration(
+                                counterText: '',
                                 border: OutlineInputBorder(
                                   borderRadius: const BorderRadius.all(
                                     const Radius.circular(5),
@@ -298,6 +305,7 @@ class _RandomBeepState extends State<RandomBeep> {
                             height: 40,
                             width: 140,
                             child: TextField(
+                              maxLength: 2,
                               enabled: enabledText ? true : false,
                               controller: maxSecondsController,
                               enableInteractiveSelection: false,
@@ -348,6 +356,7 @@ class _RandomBeepState extends State<RandomBeep> {
                                 }
                               },
                               decoration: InputDecoration(
+                                counterText: '',
                                 border: OutlineInputBorder(
                                     borderRadius: const BorderRadius.all(
                                   const Radius.circular(5),
@@ -369,6 +378,7 @@ class _RandomBeepState extends State<RandomBeep> {
                             height: 40,
                             width: 140,
                             child: TextField(
+                              maxLength: 2,
                               enabled: enabledText ? true : false,
                               controller: minIntervalMinutesController,
                               enableInteractiveSelection: false,
@@ -415,6 +425,7 @@ class _RandomBeepState extends State<RandomBeep> {
                                 }
                               },
                               decoration: InputDecoration(
+                                counterText: '',
                                 border: OutlineInputBorder(
                                   borderRadius: const BorderRadius.all(
                                     const Radius.circular(5),
@@ -428,6 +439,7 @@ class _RandomBeepState extends State<RandomBeep> {
                             height: 40,
                             width: 140,
                             child: TextField(
+                              maxLength: 2,
                               enabled: enabledText ? true : false,
                               controller: minIntervalSecondsController,
                               enableInteractiveSelection: false,
@@ -474,6 +486,7 @@ class _RandomBeepState extends State<RandomBeep> {
                                 }
                               },
                               decoration: InputDecoration(
+                                counterText: '',
                                 border: OutlineInputBorder(
                                     borderRadius: const BorderRadius.all(
                                   const Radius.circular(5),
