@@ -19,15 +19,20 @@ class _LapState extends State<Lap> {
   final player = AudioCache();
   bool isRunning = false;
   bool reset = false;
+  bool enabledText = true;
   int setMinutes = 0;
   int setSeconds = 0;
   int intervalMinutes = 0;
   int intervalSeconds = 0;
   int intervalTotal = 0;
-  RestartableTimer timer;
+  Timer activeTimer;
 
   final StopWatchTimer _stopWatchTimer = StopWatchTimer(
-      isLapHours: true, onChange: (value) => {print('onChange $value')});
+    isLapHours: true,
+    // onChange: (value) => {
+    //       // print('onChange $value')
+    //     }
+  );
 
   @override
   void initState() {
@@ -37,7 +42,7 @@ class _LapState extends State<Lap> {
       if (StopWatchTimer.getRawSecond(value * 10) == 0) {
         if (intervalTotal != 0) {
           player.play('sounds/boxing-bell.mp3');
-          timer.cancel();
+          activeTimer.cancel();
         }
         setState(() {
           isRunning = false;
@@ -49,7 +54,7 @@ class _LapState extends State<Lap> {
 
   void dispose() async {
     super.dispose();
-    timer.cancel();
+    activeTimer.cancel();
     await _stopWatchTimer.dispose();
   }
 
@@ -100,6 +105,7 @@ class _LapState extends State<Lap> {
                             height: 40,
                             width: 140,
                             child: TextField(
+                              enabled: enabledText ? true : false,
                               enableInteractiveSelection: false,
                               controller: minutesController,
                               inputFormatters: [
@@ -107,18 +113,21 @@ class _LapState extends State<Lap> {
                               ],
                               keyboardType: TextInputType.number,
                               onChanged: (text) {
+                                if (activeTimer != null) {
+                                  activeTimer.cancel();
+                                }
                                 _stopWatchTimer.onExecute
                                     .add(StopWatchExecute.stop);
+                                minutesController2.text = '';
+                                secondsController2.text = '';
+                                intervalMinutes = 0;
+                                intervalSeconds = 0;
+                                intervalTotal = 0;
                                 setState(() {
                                   setMinutes = 0;
                                   isRunning = false;
                                   reset = false;
                                 });
-
-                                minutesController2.text = '';
-                                secondsController2.text = '';
-                                intervalMinutes = 0;
-                                intervalSeconds = 0;
                                 if (int.parse(text) > 59) {
                                   minutesController.text = '';
                                   setMinutes = 0;
@@ -146,6 +155,7 @@ class _LapState extends State<Lap> {
                             height: 40,
                             width: 140,
                             child: TextField(
+                              enabled: enabledText ? true : false,
                               enableInteractiveSelection: false,
                               controller: secondsController,
                               inputFormatters: [
@@ -153,18 +163,21 @@ class _LapState extends State<Lap> {
                               ],
                               keyboardType: TextInputType.number,
                               onChanged: (text) {
+                                if (activeTimer != null) {
+                                  activeTimer.cancel();
+                                }
                                 _stopWatchTimer.onExecute
                                     .add(StopWatchExecute.stop);
+                                minutesController2.text = '';
+                                secondsController2.text = '';
+                                intervalMinutes = 0;
+                                intervalSeconds = 0;
+                                intervalTotal = 0;
                                 setState(() {
                                   setSeconds = 0;
                                   isRunning = false;
                                   reset = false;
                                 });
-
-                                minutesController2.text = '';
-                                secondsController2.text = '';
-                                intervalMinutes = 0;
-                                intervalSeconds = 0;
                                 if (int.parse(text) > 59) {
                                   secondsController.text = '';
                                   setSeconds = 0;
@@ -201,6 +214,7 @@ class _LapState extends State<Lap> {
                             height: 40,
                             width: 140,
                             child: TextField(
+                              enabled: enabledText ? true : false,
                               controller: minutesController2,
                               enableInteractiveSelection: false,
                               inputFormatters: [
@@ -208,6 +222,9 @@ class _LapState extends State<Lap> {
                               ],
                               keyboardType: TextInputType.number,
                               onChanged: (text) {
+                                if (activeTimer != null) {
+                                  activeTimer.cancel();
+                                }
                                 _stopWatchTimer.onExecute
                                     .add(StopWatchExecute.stop);
                                 setState(() {
@@ -256,6 +273,7 @@ class _LapState extends State<Lap> {
                             height: 40,
                             width: 140,
                             child: TextField(
+                              enabled: enabledText ? true : false,
                               controller: secondsController2,
                               enableInteractiveSelection: false,
                               inputFormatters: [
@@ -263,6 +281,9 @@ class _LapState extends State<Lap> {
                               ],
                               keyboardType: TextInputType.number,
                               onChanged: (text) {
+                                if (activeTimer != null) {
+                                  activeTimer.cancel();
+                                }
                                 _stopWatchTimer.onExecute
                                     .add(StopWatchExecute.stop);
                                 setState(() {
@@ -318,6 +339,9 @@ class _LapState extends State<Lap> {
                       borderRadius:
                           const BorderRadius.all(const Radius.circular(5))),
                   onPressed: () async {
+                    if (activeTimer != null) {
+                      activeTimer.cancel();
+                    }
                     if (setMinutes == 0 && setSeconds == 0) {
                       DoNothingAction();
                     } else {
@@ -327,17 +351,19 @@ class _LapState extends State<Lap> {
                           : _stopWatchTimer.onExecute
                               .add(StopWatchExecute.start);
                       if (intervalTotal != 0) {
-                        // isRunning
-                        //     ? timer.cancel()
-                        //     : timer = new Timer.periodic(
-                        //         new Duration(
-                        //             seconds: intervalSeconds,
-                        //             minutes: intervalMinutes), (timer) {
-                        //         player.play('sounds/censor-beep-1.mp3');
-                        //       });
+                        if (!isRunning) {
+                          Timer.periodic(
+                              new Duration(
+                                  seconds: intervalSeconds,
+                                  minutes: intervalMinutes), (timer) {
+                            activeTimer = timer;
+                            player.play('sounds/censor-beep-1.mp3');
+                          });
+                        }
                       }
                       setState(() {
                         isRunning = !isRunning;
+                        enabledText = !enabledText;
                       });
                     }
                   },
@@ -365,7 +391,11 @@ class _LapState extends State<Lap> {
                           setState(() {
                             isRunning = false;
                             reset = false;
+                            enabledText = true;
                           });
+                          if (activeTimer != null) {
+                            activeTimer.cancel();
+                          }
                         },
                         child: Text(
                           'Reset',

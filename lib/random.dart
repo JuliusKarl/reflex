@@ -22,6 +22,7 @@ class _RandomBeepState extends State<RandomBeep> {
   final player = AudioCache();
   bool isRunning = false;
   bool reset = false;
+  bool enabledText = true;
   int setMinutes = 0;
   int setSeconds = 0;
   int maxMinutes = 0;
@@ -30,7 +31,7 @@ class _RandomBeepState extends State<RandomBeep> {
   int minSeconds = 0;
   int maxIntervalTotal = 0;
   int minIntervalTotal = 0;
-  Timer timer;
+  Timer activeTimer;
 
   final StopWatchTimer _stopWatchTimer = StopWatchTimer(
       isLapHours: true, onChange: (value) => {print('onChange $value')});
@@ -45,7 +46,7 @@ class _RandomBeepState extends State<RandomBeep> {
       if (StopWatchTimer.getRawSecond(value * 10) == 0) {
         if (maxIntervalTotal != 0) {
           player.play('sounds/boxing-bell.mp3');
-          timer.cancel();
+          activeTimer.cancel();
         }
         setState(() {
           isRunning = false;
@@ -57,7 +58,7 @@ class _RandomBeepState extends State<RandomBeep> {
 
   void dispose() async {
     super.dispose();
-    timer.cancel();
+    activeTimer.cancel();
     await _stopWatchTimer.dispose();
   }
 
@@ -108,6 +109,7 @@ class _RandomBeepState extends State<RandomBeep> {
                             height: 40,
                             width: 140,
                             child: TextField(
+                              enabled: enabledText ? true : false,
                               controller: minutesController,
                               enableInteractiveSelection: false,
                               inputFormatters: [
@@ -157,6 +159,7 @@ class _RandomBeepState extends State<RandomBeep> {
                             height: 40,
                             width: 140,
                             child: TextField(
+                              enabled: enabledText ? true : false,
                               controller: secondsController,
                               enableInteractiveSelection: false,
                               inputFormatters: [
@@ -215,6 +218,7 @@ class _RandomBeepState extends State<RandomBeep> {
                             height: 40,
                             width: 140,
                             child: TextField(
+                              enabled: enabledText ? true : false,
                               controller: maxMinutesController,
                               enableInteractiveSelection: false,
                               inputFormatters: [
@@ -270,6 +274,7 @@ class _RandomBeepState extends State<RandomBeep> {
                             height: 40,
                             width: 140,
                             child: TextField(
+                              enabled: enabledText ? true : false,
                               controller: maxSecondsController,
                               enableInteractiveSelection: false,
                               inputFormatters: [
@@ -334,6 +339,7 @@ class _RandomBeepState extends State<RandomBeep> {
                             height: 40,
                             width: 140,
                             child: TextField(
+                              enabled: enabledText ? true : false,
                               controller: minMinutesController,
                               enableInteractiveSelection: false,
                               inputFormatters: [
@@ -385,6 +391,7 @@ class _RandomBeepState extends State<RandomBeep> {
                             height: 40,
                             width: 140,
                             child: TextField(
+                              enabled: enabledText ? true : false,
                               controller: minSecondsController,
                               enableInteractiveSelection: false,
                               inputFormatters: [
@@ -444,27 +451,39 @@ class _RandomBeepState extends State<RandomBeep> {
                       borderRadius:
                           const BorderRadius.all(const Radius.circular(5))),
                   onPressed: () async {
+                    if (activeTimer != null) {
+                      activeTimer.cancel();
+                    }
                     if (setMinutes == 0 && setSeconds == 0) {
                       DoNothingAction();
                     } else {
-                      if (maxIntervalTotal != 0) {
-                        isRunning
-                            ? timer.cancel()
-                            : timer = new Timer.periodic(
-                                new Duration(
-                                    seconds: minIntervalTotal +
-                                        _random.nextInt(maxIntervalTotal -
-                                            minIntervalTotal)), (timer) {
-                                player.play('sounds/censor-beep-1.mp3');
-                              });
-                      }
                       reset = true;
                       isRunning
                           ? _stopWatchTimer.onExecute.add(StopWatchExecute.stop)
                           : _stopWatchTimer.onExecute
                               .add(StopWatchExecute.start);
+                      if (maxIntervalTotal != 0) {
+                        if (minIntervalTotal != 0) {
+                          isRunning
+                              ? activeTimer.cancel()
+                              : Timer.periodic(
+                                  new Duration(
+                                      seconds: minIntervalTotal +
+                                          _random.nextInt(maxIntervalTotal -
+                                              minIntervalTotal)), (timer) {
+                                  activeTimer = timer;
+                                  player.play('sounds/censor-beep-1.mp3');
+                                });
+                        } else if (isRunning == false) {
+                          Scaffold.of(context).removeCurrentSnackBar();
+                          Scaffold.of(context).showSnackBar(SnackBar(
+                              duration: Duration(seconds: 1),
+                              content: Text('Minimum value required')));
+                        }
+                      }
                       setState(() {
                         isRunning = !isRunning;
+                        enabledText = !enabledText;
                       });
                     }
                   },
@@ -492,7 +511,11 @@ class _RandomBeepState extends State<RandomBeep> {
                           setState(() {
                             isRunning = false;
                             reset = false;
+                            enabledText = true;
                           });
+                          if (activeTimer != null) {
+                            activeTimer.cancel();
+                          }
                         },
                         child: Text(
                           'Reset',
