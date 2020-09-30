@@ -2,7 +2,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:audioplayers/audio_cache.dart';
-import 'package:async/async.dart';
 import 'dart:async';
 
 class Lap extends StatefulWidget {
