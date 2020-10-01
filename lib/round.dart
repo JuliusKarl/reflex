@@ -44,45 +44,61 @@ class _SetsState extends State<Sets> {
     super.initState();
     _stopWatchTimer.rawTime.listen((value) {
       if (StopWatchTimer.getRawSecond(value * 10) == 0) {
-        if (setTracker > 0) {
-          if (workout) {
-            player.play('sounds/censor-beep-1.mp3');
-            setState(() {
-              workout = false;
-              rest = true;
-            });
-            _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
-            if (intervalMinutes + intervalSeconds == 0) {
+        if (workout) {
+          _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
+          if (intervalMinutes + intervalSeconds == 0) {
+            if (setTracker == 1) {
+              player.play('sounds/boxing-bell.mp3');
               setState(() {
-                rest = false;
-                workout = true;
+                setsController.text = totalSets.toString();
+                setTracker = totalSets;
+                isRunning = false;
+                enabledText = true;
+                reset = false;
               });
-              _stopWatchTimer.setPresetMinuteTime(intervalMinutes);
-              _stopWatchTimer.setPresetSecondTime(intervalSeconds);
-            }
-            _stopWatchTimer.onExecute.add(StopWatchExecute.start);
-          } else if (rest) {
-            player.play('sounds/censor-beep-1.mp3');
-            setState(() {
-              rest = false;
-              workout = true;
+            } else {
               setTracker -= 1;
               setsController.text = setTracker.toString();
-            });
-            _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
-            _stopWatchTimer.setPresetMinuteTime(setMinutes);
-            _stopWatchTimer.setPresetSecondTime(setSeconds);
-            _stopWatchTimer.onExecute.add(StopWatchExecute.start);
+              rest = false;
+              workout = true;
+              player.play('sounds/censor-beep-1.mp3');
+              _stopWatchTimer.onExecute.add(StopWatchExecute.start);
+            }
+          } else {
+            // To Do:
+            // Reset the timer with REST duration
+            // set REST to true without triggering the block below
+            // setTracker -= 1;
+            //
+            //
+            // _stopWatchTimer.setPresetMinuteTime(intervalMinutes);
+            // _stopWatchTimer.setPresetSecondTime(intervalSeconds);
+            // player.play('sounds/censor-beep-1.mp3');
+            // _stopWatchTimer.onExecute.add(StopWatchExecute.start);
           }
+        }
+      } else if (rest) {
+        setState(() {
+          rest = false;
+          workout = true;
+          setTracker -= 1;
+          setsController.text = setTracker.toString();
+        });
+        if (setTracker == 0) {
+          player.play('sounds/boxing-bell.mp3');
+          setState(() {
+            setsController.text = totalSets.toString();
+            setTracker = totalSets;
+            isRunning = false;
+            enabledText = true;
+            reset = false;
+          });
         } else {
-          if (isRunning) {
-            player.play('sounds/boxing-bell.mp3');
-            setState(() {
-              setsController.text = totalSets.toString();
-              isRunning = false;
-              enabledText = true;
-            });
-          }
+          player.play('sounds/censor-beep-1.mp3');
+          _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
+          _stopWatchTimer.setPresetMinuteTime(setMinutes);
+          _stopWatchTimer.setPresetSecondTime(setSeconds);
+          _stopWatchTimer.onExecute.add(StopWatchExecute.start);
         }
       }
     });
@@ -96,357 +112,374 @@ class _SetsState extends State<Sets> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: ListView(
-        shrinkWrap: true,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(bottom: 0),
-            child: StreamBuilder<int>(
-              stream: _stopWatchTimer.rawTime,
-              initialData: _stopWatchTimer.rawTime.value,
-              builder: (context, snap) {
-                final value = snap.data;
-                final displayTime =
-                    StopWatchTimer.getDisplayTime(value, hours: _isHours);
-                return Container(
-                    margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
-                    child: Column(
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: Text(displayTime,
-                              style: const TextStyle(
-                                  fontSize: 75,
-                                  fontFamily: 'Digital',
-                                  color: Color(0xFF555555))),
-                        ),
-                      ],
-                    ));
-              },
-            ),
-          ),
-
-          //  Time Options
-          Container(
-              margin: EdgeInsets.symmetric(horizontal: 30),
-              child: Text("Sets")),
-          Container(
-              margin: EdgeInsets.fromLTRB(30, 5, 30, 25),
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Flexible(
-                        child: Container(
-                            width: 140,
-                            height: 40,
-                            child: TextField(
-                              enabled: enabledText ? true : false,
-                              controller: setsController,
-                              enableInteractiveSelection: false,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly
-                              ],
-                              keyboardType: TextInputType.number,
-                              onChanged: (text) {
-                                setState(() {
-                                  totalSets = 0;
-                                  totalSets = int.parse(text);
-                                  setTracker = totalSets;
-                                });
-                              },
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                    borderRadius: const BorderRadius.all(
-                                  const Radius.circular(5),
-                                )),
-                                labelText: 'Total',
-                              ),
-                            ))),
-                    Container(
-                        child: Text(
-                            isRunning ? workout ? 'Workout' : 'Rest' : '',
-                            style: TextStyle(fontSize: 40)))
-                  ])),
-          Container(
-              margin: EdgeInsets.symmetric(horizontal: 30),
-              child: Text("Workout")),
-          Container(
-              margin: EdgeInsets.fromLTRB(30, 5, 30, 25),
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Flexible(
-                        child: Container(
-                            height: 40,
-                            width: 140,
-                            child: TextField(
-                              maxLength: 2,
-                              enabled: enabledText ? true : false,
-                              enableInteractiveSelection: false,
-                              controller: minutesController,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly
-                              ],
-                              keyboardType: TextInputType.number,
-                              onChanged: (text) {
-                                if (activeTimer != null) {
-                                  activeTimer.cancel();
-                                }
-                                _stopWatchTimer.onExecute
-                                    .add(StopWatchExecute.stop);
-                                setState(() {
-                                  setMinutes = 0;
-                                  isRunning = false;
-                                  reset = false;
-                                });
-                                if (int.parse(text) > 59) {
-                                  minutesController.text = '';
-                                  setMinutes = 0;
-                                  _stopWatchTimer.setPresetMinuteTime(0);
-                                  Scaffold.of(context).removeCurrentSnackBar();
-                                  Scaffold.of(context).showSnackBar(SnackBar(
-                                      duration: Duration(seconds: 1),
-                                      content: Text('Value too high')));
-                                } else {
-                                  setMinutes = int.parse(text);
-                                  intervalTotal = setMinutes + setSeconds;
-                                  _stopWatchTimer
-                                      .setPresetMinuteTime(int.parse(text));
-                                }
-                              },
-                              decoration: InputDecoration(
-                                counterText: '',
-                                border: OutlineInputBorder(
-                                    borderRadius: const BorderRadius.all(
-                                  const Radius.circular(5),
-                                )),
-                                labelText: 'Min',
-                              ),
-                            ))),
-                    Flexible(
-                        child: Container(
-                            height: 40,
-                            width: 140,
-                            child: TextField(
-                              maxLength: 2,
-                              enabled: enabledText ? true : false,
-                              enableInteractiveSelection: false,
-                              controller: secondsController,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly
-                              ],
-                              keyboardType: TextInputType.number,
-                              onChanged: (text) {
-                                if (activeTimer != null) {
-                                  activeTimer.cancel();
-                                }
-                                _stopWatchTimer.onExecute
-                                    .add(StopWatchExecute.stop);
-                                setState(() {
-                                  setSeconds = 0;
-                                  isRunning = false;
-                                  reset = false;
-                                });
-                                if (int.parse(text) > 59) {
-                                  secondsController.text = '';
-                                  setSeconds = 0;
-                                  _stopWatchTimer.setPresetSecondTime(0);
-                                  Scaffold.of(context).removeCurrentSnackBar();
-                                  Scaffold.of(context).showSnackBar(SnackBar(
-                                      duration: Duration(seconds: 1),
-                                      content: Text('Value too high')));
-                                } else {
-                                  setSeconds = int.parse(text);
-                                  intervalTotal = setMinutes + setSeconds;
-                                  _stopWatchTimer
-                                      .setPresetSecondTime(int.parse(text));
-                                }
-                              },
-                              decoration: InputDecoration(
-                                counterText: '',
-                                border: OutlineInputBorder(
-                                    borderRadius: const BorderRadius.all(
-                                  const Radius.circular(5),
-                                )),
-                                labelText: 'Sec',
-                              ),
-                            ))),
-                  ])),
-          Container(
-              margin: EdgeInsets.symmetric(horizontal: 30),
-              child: Text("Rest")),
-          Container(
-              margin: EdgeInsets.fromLTRB(30, 5, 30, 10),
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Flexible(
-                        child: Container(
-                            height: 40,
-                            width: 140,
-                            child: TextField(
-                              maxLength: 2,
-                              enabled: enabledText ? true : false,
-                              controller: minutesController2,
-                              enableInteractiveSelection: false,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly
-                              ],
-                              keyboardType: TextInputType.number,
-                              onChanged: (text) {
-                                if (activeTimer != null) {
-                                  activeTimer.cancel();
-                                }
-                                _stopWatchTimer.onExecute
-                                    .add(StopWatchExecute.stop);
-                                setState(() {
-                                  intervalMinutes = 0;
-                                  isRunning = false;
-                                  reset = false;
-                                });
-
-                                if (int.parse(text) > 59) {
-                                  intervalMinutes = 0;
-                                  minutesController2.text = '';
-                                  Scaffold.of(context).removeCurrentSnackBar();
-                                  Scaffold.of(context).showSnackBar(SnackBar(
-                                      duration: Duration(seconds: 1),
-                                      content: Text('Value too high')));
-                                } else {
-                                  intervalMinutes = int.parse(text);
-                                }
-                              },
-                              decoration: InputDecoration(
-                                counterText: '',
-                                border: OutlineInputBorder(
-                                  borderRadius: const BorderRadius.all(
-                                    const Radius.circular(5),
-                                  ),
-                                ),
-                                labelText: 'Min',
-                              ),
-                            ))),
-                    Flexible(
-                        child: Container(
-                            height: 40,
-                            width: 140,
-                            child: TextField(
-                              maxLength: 2,
-                              enabled: enabledText ? true : false,
-                              controller: secondsController2,
-                              enableInteractiveSelection: false,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly
-                              ],
-                              keyboardType: TextInputType.number,
-                              onChanged: (text) {
-                                if (activeTimer != null) {
-                                  activeTimer.cancel();
-                                }
-                                _stopWatchTimer.onExecute
-                                    .add(StopWatchExecute.stop);
-                                setState(() {
-                                  intervalSeconds = 0;
-                                  isRunning = false;
-                                  reset = false;
-                                });
-
-                                if (int.parse(text) > 59) {
-                                  intervalSeconds = 0;
-                                  secondsController2.text = '';
-                                  Scaffold.of(context).removeCurrentSnackBar();
-                                  Scaffold.of(context).showSnackBar(SnackBar(
-                                      duration: Duration(seconds: 1),
-                                      content: Text('Value too high')));
-                                } else {
-                                  intervalSeconds = int.parse(text);
-                                }
-                              },
-                              decoration: InputDecoration(
-                                counterText: '',
-                                border: OutlineInputBorder(
-                                    borderRadius: const BorderRadius.all(
-                                  const Radius.circular(5),
-                                )),
-                                labelText: 'Sec',
-                              ),
-                            ))),
-                  ])),
-          Container(
-              margin: EdgeInsets.only(top: 20),
-              height: 40,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30),
-                child: RaisedButton(
-                  padding: const EdgeInsets.all(4),
-                  color: isRunning ? Color(0xFFd41e1e) : Colors.white,
-                  shape: const RoundedRectangleBorder(
-                      borderRadius:
-                          const BorderRadius.all(const Radius.circular(5))),
-                  onPressed: () async {
-                    if (setMinutes + setSeconds == 0 || totalSets == 0) {
-                      Scaffold.of(context).removeCurrentSnackBar();
-                      Scaffold.of(context).showSnackBar(SnackBar(
-                          duration: Duration(seconds: 1),
-                          content: Text('Missing values')));
-                      DoNothingAction();
-                    } else {
-                      workout = true;
-                      reset = true;
-                      isRunning
-                          ? _stopWatchTimer.onExecute
-                              .add(StopWatchExecute.reset)
-                          : _stopWatchTimer.onExecute
-                              .add(StopWatchExecute.start);
-                      setState(() {
-                        workout = true;
-                        isRunning = !isRunning;
-                        enabledText = !enabledText;
-                      });
-                    }
+    return Container(
+        color: Color(0xFFf0f0f0),
+        child: Center(
+          child: ListView(
+            shrinkWrap: true,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(bottom: 0),
+                child: StreamBuilder<int>(
+                  stream: _stopWatchTimer.rawTime,
+                  initialData: _stopWatchTimer.rawTime.value,
+                  builder: (context, snap) {
+                    final value = snap.data;
+                    final displayTime =
+                        StopWatchTimer.getDisplayTime(value, hours: _isHours);
+                    return Container(
+                        margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
+                        child: Column(
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Text(displayTime,
+                                  style: const TextStyle(
+                                      fontSize: 75,
+                                      fontFamily: 'Digital',
+                                      color: Color(0xFF555555))),
+                            ),
+                          ],
+                        ));
                   },
-                  child: Text(
-                    isRunning ? 'Stop' : 'Start',
-                    style: TextStyle(
-                        color: isRunning ? Colors.white : Color(0xFF555555)),
-                  ),
                 ),
-              )),
-          Container(
-              margin: EdgeInsets.only(top: 20),
-              height: 40,
-              child: reset
-                  ? Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 30),
-                      child: RaisedButton(
-                        padding: const EdgeInsets.all(4),
-                        color: Colors.white,
-                        shape: const RoundedRectangleBorder(
-                            borderRadius: const BorderRadius.all(
-                                const Radius.circular(5))),
-                        onPressed: () async {
-                          _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
+              ),
+
+              //  Time Options
+              Container(
+                  margin: EdgeInsets.symmetric(horizontal: 30),
+                  child: Text("Sets")),
+              Container(
+                  margin: EdgeInsets.fromLTRB(30, 5, 30, 25),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                            child: Container(
+                                width: 140,
+                                height: 40,
+                                color: Colors.white,
+                                child: TextField(
+                                  enabled: enabledText ? true : false,
+                                  controller: setsController,
+                                  enableInteractiveSelection: false,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly
+                                  ],
+                                  keyboardType: TextInputType.number,
+                                  onChanged: (text) {
+                                    setState(() {
+                                      totalSets = 0;
+                                      totalSets = int.parse(text);
+                                      setTracker = totalSets;
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                        borderRadius: const BorderRadius.all(
+                                      const Radius.circular(5),
+                                    )),
+                                    labelText: 'Total',
+                                  ),
+                                ))),
+                        Container(
+                            child: Text(
+                                isRunning ? workout ? 'Workout' : 'Rest' : '',
+                                style: TextStyle(fontSize: 40)))
+                      ])),
+              Container(
+                  margin: EdgeInsets.symmetric(horizontal: 30),
+                  child: Text("Workout")),
+              Container(
+                  margin: EdgeInsets.fromLTRB(30, 5, 30, 25),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                            child: Container(
+                                height: 40,
+                                width: 140,
+                                color: Colors.white,
+                                child: TextField(
+                                  maxLength: 2,
+                                  enabled: enabledText ? true : false,
+                                  enableInteractiveSelection: false,
+                                  controller: minutesController,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly
+                                  ],
+                                  keyboardType: TextInputType.number,
+                                  onChanged: (text) {
+                                    if (activeTimer != null) {
+                                      activeTimer.cancel();
+                                    }
+                                    _stopWatchTimer.onExecute
+                                        .add(StopWatchExecute.stop);
+                                    setState(() {
+                                      setMinutes = 0;
+                                      isRunning = false;
+                                      reset = false;
+                                    });
+                                    if (int.parse(text) > 59) {
+                                      minutesController.text = '';
+                                      setMinutes = 0;
+                                      _stopWatchTimer.setPresetMinuteTime(0);
+                                      Scaffold.of(context)
+                                          .removeCurrentSnackBar();
+                                      Scaffold.of(context).showSnackBar(
+                                          SnackBar(
+                                              duration: Duration(seconds: 1),
+                                              content: Text('Value too high')));
+                                    } else {
+                                      setMinutes = int.parse(text);
+                                      intervalTotal = setMinutes + setSeconds;
+                                      _stopWatchTimer
+                                          .setPresetMinuteTime(int.parse(text));
+                                    }
+                                  },
+                                  decoration: InputDecoration(
+                                    counterText: '',
+                                    border: OutlineInputBorder(
+                                        borderRadius: const BorderRadius.all(
+                                      const Radius.circular(5),
+                                    )),
+                                    labelText: 'Min',
+                                  ),
+                                ))),
+                        Flexible(
+                            child: Container(
+                                height: 40,
+                                width: 140,
+                                color: Colors.white,
+                                child: TextField(
+                                  maxLength: 2,
+                                  enabled: enabledText ? true : false,
+                                  enableInteractiveSelection: false,
+                                  controller: secondsController,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly
+                                  ],
+                                  keyboardType: TextInputType.number,
+                                  onChanged: (text) {
+                                    if (activeTimer != null) {
+                                      activeTimer.cancel();
+                                    }
+                                    _stopWatchTimer.onExecute
+                                        .add(StopWatchExecute.stop);
+                                    setState(() {
+                                      setSeconds = 0;
+                                      isRunning = false;
+                                      reset = false;
+                                    });
+                                    if (int.parse(text) > 59) {
+                                      secondsController.text = '';
+                                      setSeconds = 0;
+                                      _stopWatchTimer.setPresetSecondTime(0);
+                                      Scaffold.of(context)
+                                          .removeCurrentSnackBar();
+                                      Scaffold.of(context).showSnackBar(
+                                          SnackBar(
+                                              duration: Duration(seconds: 1),
+                                              content: Text('Value too high')));
+                                    } else {
+                                      setSeconds = int.parse(text);
+                                      intervalTotal = setMinutes + setSeconds;
+                                      _stopWatchTimer
+                                          .setPresetSecondTime(int.parse(text));
+                                    }
+                                  },
+                                  decoration: InputDecoration(
+                                    counterText: '',
+                                    border: OutlineInputBorder(
+                                        borderRadius: const BorderRadius.all(
+                                      const Radius.circular(5),
+                                    )),
+                                    labelText: 'Sec',
+                                  ),
+                                ))),
+                      ])),
+              Container(
+                  margin: EdgeInsets.symmetric(horizontal: 30),
+                  child: Text("Rest")),
+              Container(
+                  margin: EdgeInsets.fromLTRB(30, 5, 30, 10),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                            child: Container(
+                                height: 40,
+                                width: 140,
+                                color: Colors.white,
+                                child: TextField(
+                                  maxLength: 2,
+                                  enabled: enabledText ? true : false,
+                                  controller: minutesController2,
+                                  enableInteractiveSelection: false,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly
+                                  ],
+                                  keyboardType: TextInputType.number,
+                                  onChanged: (text) {
+                                    if (activeTimer != null) {
+                                      activeTimer.cancel();
+                                    }
+                                    _stopWatchTimer.onExecute
+                                        .add(StopWatchExecute.stop);
+                                    setState(() {
+                                      intervalMinutes = 0;
+                                      isRunning = false;
+                                      reset = false;
+                                    });
+
+                                    if (int.parse(text) > 59) {
+                                      intervalMinutes = 0;
+                                      minutesController2.text = '';
+                                      Scaffold.of(context)
+                                          .removeCurrentSnackBar();
+                                      Scaffold.of(context).showSnackBar(
+                                          SnackBar(
+                                              duration: Duration(seconds: 1),
+                                              content: Text('Value too high')));
+                                    } else {
+                                      intervalMinutes = int.parse(text);
+                                    }
+                                  },
+                                  decoration: InputDecoration(
+                                    counterText: '',
+                                    border: OutlineInputBorder(
+                                      borderRadius: const BorderRadius.all(
+                                        const Radius.circular(5),
+                                      ),
+                                    ),
+                                    labelText: 'Min',
+                                  ),
+                                ))),
+                        Flexible(
+                            child: Container(
+                                height: 40,
+                                width: 140,
+                                color: Colors.white,
+                                child: TextField(
+                                  maxLength: 2,
+                                  enabled: enabledText ? true : false,
+                                  controller: secondsController2,
+                                  enableInteractiveSelection: false,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly
+                                  ],
+                                  keyboardType: TextInputType.number,
+                                  onChanged: (text) {
+                                    if (activeTimer != null) {
+                                      activeTimer.cancel();
+                                    }
+                                    _stopWatchTimer.onExecute
+                                        .add(StopWatchExecute.stop);
+                                    setState(() {
+                                      intervalSeconds = 0;
+                                      isRunning = false;
+                                      reset = false;
+                                    });
+
+                                    if (int.parse(text) > 59) {
+                                      intervalSeconds = 0;
+                                      secondsController2.text = '';
+                                      Scaffold.of(context)
+                                          .removeCurrentSnackBar();
+                                      Scaffold.of(context).showSnackBar(
+                                          SnackBar(
+                                              duration: Duration(seconds: 1),
+                                              content: Text('Value too high')));
+                                    } else {
+                                      intervalSeconds = int.parse(text);
+                                    }
+                                  },
+                                  decoration: InputDecoration(
+                                    counterText: '',
+                                    border: OutlineInputBorder(
+                                        borderRadius: const BorderRadius.all(
+                                      const Radius.circular(5),
+                                    )),
+                                    labelText: 'Sec',
+                                  ),
+                                ))),
+                      ])),
+              Container(
+                  margin: EdgeInsets.only(top: 20),
+                  height: 40,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 30),
+                    child: RaisedButton(
+                      padding: const EdgeInsets.all(4),
+                      color: isRunning ? Color(0xFFd41e1e) : Colors.white,
+                      shape: const RoundedRectangleBorder(
+                          borderRadius:
+                              const BorderRadius.all(const Radius.circular(5))),
+                      onPressed: () async {
+                        if (setMinutes + setSeconds == 0 || totalSets == 0) {
+                          Scaffold.of(context).removeCurrentSnackBar();
+                          Scaffold.of(context).showSnackBar(SnackBar(
+                              duration: Duration(seconds: 1),
+                              content: Text('Missing values')));
+                          DoNothingAction();
+                        } else {
+                          workout = true;
+                          reset = true;
+                          isRunning
+                              ? _stopWatchTimer.onExecute
+                                  .add(StopWatchExecute.reset)
+                              : _stopWatchTimer.onExecute
+                                  .add(StopWatchExecute.start);
                           setState(() {
-                            setsController.text = totalSets.toString();
-                            setTracker = totalSets;
-                            isRunning = false;
-                            reset = false;
-                            enabledText = true;
+                            workout = true;
+                            isRunning = !isRunning;
+                            enabledText = !enabledText;
                           });
-                          if (activeTimer != null) {
-                            activeTimer.cancel();
-                          }
-                        },
-                        child: Text(
-                          'Reset',
-                          style: TextStyle(color: Color(0xFF555555)),
-                        ),
+                        }
+                      },
+                      child: Text(
+                        isRunning ? 'Stop' : 'Start',
+                        style: TextStyle(
+                            color:
+                                isRunning ? Colors.white : Color(0xFF555555)),
                       ),
-                    )
-                  : null)
-        ],
-      ),
-    );
+                    ),
+                  )),
+              Container(
+                  margin: EdgeInsets.only(top: 20),
+                  height: 40,
+                  child: reset
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 30),
+                          child: RaisedButton(
+                            padding: const EdgeInsets.all(4),
+                            color: Colors.white,
+                            shape: const RoundedRectangleBorder(
+                                borderRadius: const BorderRadius.all(
+                                    const Radius.circular(5))),
+                            onPressed: () async {
+                              _stopWatchTimer.onExecute
+                                  .add(StopWatchExecute.reset);
+                              setState(() {
+                                setsController.text = totalSets.toString();
+                                setTracker = totalSets;
+                                isRunning = false;
+                                reset = false;
+                                enabledText = true;
+                              });
+                              if (activeTimer != null) {
+                                activeTimer.cancel();
+                              }
+                            },
+                            child: Text(
+                              'Reset',
+                              style: TextStyle(color: Color(0xFF555555)),
+                            ),
+                          ),
+                        )
+                      : null)
+            ],
+          ),
+        ));
   }
 }

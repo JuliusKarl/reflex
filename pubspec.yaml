@@ -1,4 +1,4 @@
-name: explore
+name: Reflex
 description: A new Flutter project.
 
 # The following line prevents the package from being accidentally published to
@@ -41,8 +41,8 @@ dev_dependencies:
 # The following section is specific to Flutter.
 flutter:
   assets:
-   - assets/sounds/censor-beep-1.mp3
-   - assets/sounds/boxing-bell.mp3
+   - assets/sounds/
+   - assets/images/
 
   fonts:
     - family: Questrial

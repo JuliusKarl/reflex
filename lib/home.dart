@@ -3,9 +3,9 @@ import 'random.dart';
 import 'lap.dart';
 import 'round.dart';
 
-import 'info/lapInfo.dart';
-import 'info/randomInfo.dart';
-import 'info/roundInfo.dart';
+// import 'info/lapInfo.dart';
+// import 'info/randomInfo.dart';
+// import 'info/roundInfo.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -13,12 +13,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
-  List<Tab> myTabs = <Tab>[
-    Tab(text: "Fixed"),
-    Tab(text: "Random"),
-    Tab(text: "Interval"),
-  ];
-
+  // List<Tab> myTabs = <Tab>[Tab(text: "Fixed"), Tab(text: "Random"), Tab(text: "Sets")];
   TabController _tabController;
   int index;
 
@@ -40,53 +35,45 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         child: Builder(builder: (BuildContext context) {
           return Scaffold(
               appBar: AppBar(
-                actions: <Widget>[
-                  IconButton(
-                    iconSize: 20,
-                    icon: Icon(
-                      Icons.info_outline,
-                      color: Color(0xFF555555),
-                    ),
-                    onPressed: () {
-                      switch (DefaultTabController.of(context).index) {
-                        case 0:
-                          {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => LapInfo()));
-                          }
-                          break;
+                // actions: <Widget>[
+                //   IconButton(
+                //     iconSize: 20,
+                //     icon: Icon(
+                //       Icons.info_outline,
+                //       color: Color(0xFF555555),
+                //     ),
+                //     onPressed: () {
+                //       switch (DefaultTabController.of(context).index) {
+                //         case 0:
+                //           {
+                //             Navigator.push(
+                //                 context,
+                //                 MaterialPageRoute(
+                //                     builder: (context) => LapInfo()));
+                //           }
+                //           break;
 
-                        case 1:
-                          {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => RandomInfo()));
-                          }
-                          break;
-
-                        case 2:
-                          {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => RoundInfo()));
-                          }
-                          break;
-                      }
-                    },
-                  )
-                ],
+                //         case 1:
+                //           {
+                //             Navigator.push(
+                //                 context,
+                //                 MaterialPageRoute(
+                //                     builder: (context) => RandomInfo()));
+                //           }
+                //           break;
+                //       }
+                //     },
+                //   )
+                // ],
                 elevation: 0.0,
-                backgroundColor: Color(0xFFf0f0f0),
-                title:
-                    Text("Reflex", style: TextStyle(color: Color(0xFF555555))),
+                backgroundColor: Colors.white,
+                title: Container(
+                    height: 30,
+                    child: Image.asset('assets/images/reflxTitle.png')),
                 centerTitle: true,
               ),
               bottomNavigationBar: Container(
-                  color: Color(0xFFf0f0f0),
+                  color: Colors.white,
                   child: TabBar(
                     labelColor: Color(0xFF555555),
                     indicatorColor: Color(0xFF555555),
@@ -94,7 +81,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     tabs: [
                       Tab(text: 'Lap'),
                       Tab(text: 'Random'),
-                      Tab(text: 'Sets')
+                      Tab(text: 'Sets'),
                     ],
                   )),
               body: TabBarView(
