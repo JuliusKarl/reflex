@@ -59,6 +59,7 @@ class _SetsState extends State<Sets> {
                 reset = false;
               });
             } else {
+              setWorkoutTime();
               setTracker -= 1;
               setsController.text = setTracker.toString();
               rest = false;
