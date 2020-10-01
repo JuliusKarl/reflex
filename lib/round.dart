@@ -19,6 +19,8 @@ class _SetsState extends State<Sets> {
   final player = AudioCache();
   bool workout = false;
   bool rest = false;
+  bool currentWorkout = false;
+  bool currentRest = false;
   bool isRunning = false;
   bool reset = false;
   bool enabledText = true;
@@ -44,7 +46,7 @@ class _SetsState extends State<Sets> {
     super.initState();
     _stopWatchTimer.rawTime.listen((value) {
       if (StopWatchTimer.getRawSecond(value * 10) == 0) {
-        if (workout) {
+        if (isRunning) {
           _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
           if (intervalMinutes + intervalSeconds == 0) {
             if (setTracker == 1) {
@@ -65,44 +67,49 @@ class _SetsState extends State<Sets> {
               _stopWatchTimer.onExecute.add(StopWatchExecute.start);
             }
           } else {
-            // To Do:
-            // Reset the timer with REST duration
-            // set REST to true without triggering the block below
-            // setTracker -= 1;
-            //
-            //
-            // _stopWatchTimer.setPresetMinuteTime(intervalMinutes);
-            // _stopWatchTimer.setPresetSecondTime(intervalSeconds);
-            // player.play('sounds/censor-beep-1.mp3');
-            // _stopWatchTimer.onExecute.add(StopWatchExecute.start);
+            if (setTracker == 1) {
+              player.play('sounds/boxing-bell.mp3');
+              setState(() {
+                setsController.text = totalSets.toString();
+                setTracker = totalSets;
+                isRunning = false;
+                enabledText = true;
+                reset = false;
+              });
+            } else {
+              if (workout) {
+                setRestTime();
+                player.play('sounds/censor-beep-1.mp3');
+                _stopWatchTimer.onExecute.add(StopWatchExecute.start);
+                setState(() {
+                  workout = false;
+                });
+              } else {
+                setTracker -= 1;
+                setsController.text = setTracker.toString();
+                setState(() {
+                  rest = false;
+                  workout = true;
+                });
+                player.play('sounds/censor-beep-1.mp3');
+                setWorkoutTime();
+                _stopWatchTimer.onExecute.add(StopWatchExecute.start);
+              }
+            }
           }
-        }
-      } else if (rest) {
-        setState(() {
-          rest = false;
-          workout = true;
-          setTracker -= 1;
-          setsController.text = setTracker.toString();
-        });
-        if (setTracker == 0) {
-          player.play('sounds/boxing-bell.mp3');
-          setState(() {
-            setsController.text = totalSets.toString();
-            setTracker = totalSets;
-            isRunning = false;
-            enabledText = true;
-            reset = false;
-          });
-        } else {
-          player.play('sounds/censor-beep-1.mp3');
-          _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
-          _stopWatchTimer.setPresetMinuteTime(setMinutes);
-          _stopWatchTimer.setPresetSecondTime(setSeconds);
-          _stopWatchTimer.onExecute.add(StopWatchExecute.start);
         }
       }
     });
-    super.initState();
+  }
+
+  setWorkoutTime() async {
+    await _stopWatchTimer.setPresetMinuteTime(setMinutes);
+    await _stopWatchTimer.setPresetSecondTime(setSeconds);
+  }
+
+  setRestTime() async {
+    await _stopWatchTimer.setPresetMinuteTime(intervalMinutes);
+    await _stopWatchTimer.setPresetSecondTime(intervalSeconds);
   }
 
   void dispose() async {
@@ -427,7 +434,7 @@ class _SetsState extends State<Sets> {
                           reset = true;
                           isRunning
                               ? _stopWatchTimer.onExecute
-                                  .add(StopWatchExecute.reset)
+                                  .add(StopWatchExecute.stop)
                               : _stopWatchTimer.onExecute
                                   .add(StopWatchExecute.start);
                           setState(() {
