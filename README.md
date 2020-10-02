@@ -1,16 +1,19 @@
-# explore
+<p align="center">
+<img src="assets/images/reflexStore2.png" width="600">
+</p>
 
-A new Flutter project.
+<p align="center">
+<a href='https://play.google.com/store/apps/details?id=com.syno.reflex'>Download from Google Play<a>
+</p>
 
-## Getting Started
+Reflex is a HIIT Timer to support reflex and reaction training as well as overall health and fitness. There are three options to choose from:
 
-This project is a starting point for a Flutter application.
+<b>Lap</b> - A beep will sound every fixed interval <br />
+<b>Random</b> - A beep will sound every random interval <br />
+<b>Sets</b> - A beep will sound every workout set and every rest set <br />
 
-A few resources to get you started if this is your first Flutter project:
+The primary focus of Reflex is to act as a support for athletes who want to improve their reaction timing and reflex skills without the need of another person to manually provide a reaction trigger.
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Screenshots  
+<img src="assets/images/unnamed (2).png" width="200"><img src="assets/images/unnamed (1).png" width="200"><img src="assets/images/unnamed.png" width="200"><img src="assets/images/unnamed (3).png" width="200">
