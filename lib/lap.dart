@@ -42,6 +42,7 @@ class _LapState extends State<Lap> {
         if (intervalTotal != 0) {
           player.play('sounds/boxing-bell.mp3');
           enabledText = true;
+          reset = false;
           activeTimer.cancel();
         }
         setState(() {

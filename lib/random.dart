@@ -51,6 +51,7 @@ class _RandomBeepState extends State<RandomBeep> {
         if (maxIntervalTotal != 0) {
           player.play('sounds/boxing-bell.mp3');
           enabledText = true;
+          reset = false;
           activeTimer.cancel();
         }
         setState(() {
